@@ -1,0 +1,58 @@
+[gd_resource type="Resource" load_steps=14 format=3 uid="uid://csjjwkecuhnl4"]
+
+[ext_resource type="Script" uid="uid://jjeojc3xhnir" path="res://addons/license_tracker/core/licensed_asset.gd" id="1_2qpb5"]
+[ext_resource type="Script" uid="uid://bgfs0ma0vbf64" path="res://addons/license_tracker/core/license.gd" id="2_loe3j"]
+[ext_resource type="Resource" uid="uid://ds6q56r2hqmxl" path="res://addons/license_tracker/licenses/cc0.tres" id="3_18pvh"]
+[ext_resource type="Resource" uid="uid://cw2akx5i3254j" path="res://addons/license_tracker/licenses/cc_by_4.tres" id="4_h10df"]
+[ext_resource type="Resource" uid="uid://dfsryea5k43pl" path="res://addons/license_tracker/licenses/cc_by_nc_4.tres" id="5_31xi2"]
+[ext_resource type="Resource" uid="uid://b5ulbj37n2aht" path="res://addons/license_tracker/licenses/cc_by_nc_nd_4.tres" id="6_yfkol"]
+[ext_resource type="Resource" uid="uid://db4yk0t62nrat" path="res://addons/license_tracker/licenses/cc_by_nd_4.tres" id="7_7foow"]
+[ext_resource type="Script" uid="uid://ckv4pe3weee0c" path="res://addons/license_tracker/core/licensed_asset_database.gd" id="8_vdyhs"]
+
+[sub_resource type="Resource" id="Resource_2qpb5"]
+script = ExtResource("1_2qpb5")
+asset_paths = PackedStringArray("res://icon.svg")
+author = "Andrea Calabró"
+original_name = "Godot Logo"
+license = ExtResource("4_h10df")
+
+[sub_resource type="Resource" id="Resource_loe3j"]
+script = ExtResource("1_2qpb5")
+asset_paths = PackedStringArray("res://assets/fonts/Kenney Pixel.ttf")
+author = "Kenney"
+original_name = "Kenney Fonts"
+license = ExtResource("3_18pvh")
+source = "https://kenney.nl/assets/kenney-fonts"
+retrieved = "2025-10-09 23:31:11"
+
+[sub_resource type="Resource" id="Resource_18pvh"]
+script = ExtResource("1_2qpb5")
+asset_paths = PackedStringArray("res://assets/textures/giraffe.png", "res://assets/textures/panda.png", "res://assets/textures/square.svg")
+author = "Kenney"
+original_name = "Kenney Animal Pack"
+license = ExtResource("3_18pvh")
+source = "https://kenney.nl/assets/animal-pack"
+retrieved = "2025-10-09 23:31:52"
+
+[sub_resource type="Resource" id="Resource_h10df"]
+script = ExtResource("1_2qpb5")
+asset_paths = PackedStringArray("res://assets/models/bedSingle.glb", "res://assets/models/chair.glb", "res://assets/models/loungeSofa.glb")
+author = "Kenney"
+original_name = "Kenney Furniture Kit"
+license = ExtResource("3_18pvh")
+source = "https://kenney.nl/assets/furniture-kit"
+retrieved = "2025-10-09 23:33:09"
+
+[sub_resource type="Resource" id="Resource_31xi2"]
+script = ExtResource("1_2qpb5")
+asset_paths = PackedStringArray("res://assets/sounds/creature1.ogg", "res://assets/sounds/lose1.ogg")
+original_name = "Kenney Retro Sounds 1"
+license = ExtResource("3_18pvh")
+source = "https://kenney.itch.io/kenney-game-assets"
+retrieved = "2025-10-09 23:36:18"
+
+[resource]
+script = ExtResource("8_vdyhs")
+tracked_extensions = PackedStringArray("atlastex", "curvetex", "dpitex", "meshtex", "tex", "png", "bmp", "hdr", "jpg", "jpeg", "svg", "tga", "exr", "webp", "dds", "mp3str", "oggvorbisstr", "sample", "wav", "mp3", "ogg", "dae", "obj", "escn", "fbx", "gltf", "glb", "blend", "fontdata", "ttf", "ttc", "otf", "otc", "woff", "woff2", "pfb", "pfm", "font", "fnt")
+licenses = Array[ExtResource("2_loe3j")]([ExtResource("3_18pvh"), ExtResource("4_h10df"), ExtResource("5_31xi2"), ExtResource("6_yfkol"), ExtResource("7_7foow")])
+assets = Array[ExtResource("1_2qpb5")]([SubResource("Resource_2qpb5"), SubResource("Resource_loe3j"), SubResource("Resource_18pvh"), SubResource("Resource_h10df"), SubResource("Resource_31xi2")])

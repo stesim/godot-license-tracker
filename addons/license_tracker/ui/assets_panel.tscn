@@ -1,0 +1,209 @@
+[gd_scene load_steps=2 format=3 uid="uid://cfej71fyv8ols"]
+
+[ext_resource type="Script" uid="uid://bjpyuqpinvl71" path="res://addons/license_tracker/ui/assets_panel.gd" id="1_4ylri"]
+
+[node name="assets_panel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_4ylri")
+
+[node name="hsplit" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+split_offset = 256
+
+[node name="left_pane" type="VSplitContainer" parent="hsplit"]
+layout_mode = 2
+split_offset = 256
+
+[node name="licensed_pane" type="VBoxContainer" parent="hsplit/left_pane"]
+layout_mode = 2
+
+[node name="licensed_toolbar" type="HBoxContainer" parent="hsplit/left_pane/licensed_pane"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="hsplit/left_pane/licensed_pane/licensed_toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Licensed"
+
+[node name="add_licensed_button" type="Button" parent="hsplit/left_pane/licensed_pane/licensed_toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Add licensed asset(s)"
+text = "Add"
+flat = true
+
+[node name="remove_licensed_button" type="Button" parent="hsplit/left_pane/licensed_pane/licensed_toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Remove licensed asset(s)"
+text = "Remove"
+flat = true
+
+[node name="asset_list" type="ItemList" parent="hsplit/left_pane/licensed_pane"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="unlicensed_pane" type="VBoxContainer" parent="hsplit/left_pane"]
+layout_mode = 2
+
+[node name="unlicensed_toolbar" type="HBoxContainer" parent="hsplit/left_pane/unlicensed_pane"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="hsplit/left_pane/unlicensed_pane/unlicensed_toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Unlicensed"
+
+[node name="scan_button" type="Button" parent="hsplit/left_pane/unlicensed_pane/unlicensed_toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Refresh unlicensed resources"
+text = "Scan"
+flat = true
+
+[node name="resource_tree" type="Tree" parent="hsplit/left_pane/unlicensed_pane"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+select_mode = 2
+
+[node name="right_pane" type="VBoxContainer" parent="hsplit"]
+layout_mode = 2
+
+[node name="right_toolbar" type="HBoxContainer" parent="hsplit/right_pane"]
+layout_mode = 2
+
+[node name="grid_container" type="GridContainer" parent="hsplit/right_pane"]
+layout_mode = 2
+columns = 2
+
+[node name="label_2" type="Label" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+text = "Name"
+
+[node name="original_name_edit" type="LineEdit" parent="hsplit/right_pane/grid_container"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="label" type="Label" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+text = "Author"
+
+[node name="author_edit" type="LineEdit" parent="hsplit/right_pane/grid_container"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="label_3" type="Label" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+text = "Description"
+
+[node name="description_edit" type="LineEdit" parent="hsplit/right_pane/grid_container"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="label_4" type="Label" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+text = "Source"
+
+[node name="source_edit" type="LineEdit" parent="hsplit/right_pane/grid_container"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="label_5" type="Label" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+text = "Retrieval Time"
+
+[node name="hbox" type="HBoxContainer" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+
+[node name="retrieval_time_edit" type="LineEdit" parent="hsplit/right_pane/grid_container/hbox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="retrieval_now_button" type="Button" parent="hsplit/right_pane/grid_container/hbox"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Set to the current time as UTC"
+text = "Now"
+
+[node name="label_7" type="Label" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+text = "Attribution"
+
+[node name="attribution_edit" type="LineEdit" parent="hsplit/right_pane/grid_container"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="label_6" type="Label" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+text = "License"
+
+[node name="h_box_container" type="HBoxContainer" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+
+[node name="license_options" type="OptionButton" parent="hsplit/right_pane/grid_container/h_box_container"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+fit_to_longest_item = false
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="view_license_button" type="Button" parent="hsplit/right_pane/grid_container/h_box_container"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "View license details"
+text = "View"
+
+[node name="hbox" type="HBoxContainer" parent="hsplit/right_pane"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="hsplit/right_pane/hbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Files"
+
+[node name="asset_browse_files_button" type="Button" parent="hsplit/right_pane/hbox"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Add asset file path(s)"
+text = "Add Folder"
+flat = true
+
+[node name="asset_browse_folder_button" type="Button" parent="hsplit/right_pane/hbox"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Add asset folder path"
+text = "Add Files"
+flat = true
+
+[node name="asset_path_remove_button" type="Button" parent="hsplit/right_pane/hbox"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Remove asset path(s)"
+text = "Remove"
+flat = true
+
+[node name="asset_path_list" type="ItemList" parent="hsplit/right_pane"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+select_mode = 1
