@@ -24,6 +24,9 @@ If there is any interest in the plugin, I will create proper releases and submit
 
 ## Usage
 
+> [!IMPORTANT]
+> The plugin is still in development and likely not suitable for serious use.
+
 After installing the plugin, make sure to enable it in the project settings (**Project** -> **Project Settings...** -> **Plugins**).
 As soon as it is enabled, a new **Licenses** tab appears in the main screen.
 Selecting it reveals the main interface of the plugin which also has multiple tabs.
@@ -46,7 +49,7 @@ After creating a new licensed asset collection, you should fill out some additio
 
 Files and folders can be added to collections using the dedicated buttons or by dragging and dropping them from the file system dock or the unlicensed resources list.
 
-> [!WARNING]
+> [!NOTE]
 > At this point, there is no validation of the data you enter.
 > As such, you can have duplicate collection names, multiple collections containing the same files and probably other unexpected states.
 
