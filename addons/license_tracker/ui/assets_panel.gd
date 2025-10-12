@@ -122,12 +122,16 @@ func _database_changed() -> void:
 
 func _on_database_asset_added(asset: LicensedAsset, index: int) -> void:
 	_add_asset_to_list(asset, index)
+	# TODO: check visibility only against asset's paths
+	_queue_resource_tree_visibility_update()
 
 
 func _on_database_asset_removed(asset: LicensedAsset, index: int) -> void:
 	_remove_asset_from_list(asset, index)
 	if asset == _selected_asset:
 		_selected_asset = null
+	# TODO: check visibility only against asset's paths
+	_queue_resource_tree_visibility_update()
 
 
 func _on_add_licensed_button_pressed() -> void:
