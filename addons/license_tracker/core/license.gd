@@ -2,6 +2,8 @@
 extends Resource
 
 
+signal display_name_changed()
+
 signal property_value_changed(property: StringName, value: Variant)
 
 
@@ -16,12 +18,15 @@ signal property_value_changed(property: StringName, value: Variant)
 		if short_name != value:
 			short_name = value
 			property_value_changed.emit(&"short_name", value)
+			display_name_changed.emit()
 
 @export var full_name: String :
 	set(value):
 		if full_name != value:
 			full_name = value
 			property_value_changed.emit(&"full_name", value)
+			if short_name.is_empty():
+				display_name_changed.emit()
 
 @export var url: String :
 	set(value):
@@ -64,3 +69,7 @@ signal property_value_changed(property: StringName, value: Variant)
 		if allows_redistribution != value:
 			allows_redistribution = value
 			property_value_changed.emit(&"allows_redistribution", value)
+
+
+func get_display_name() -> String:
+	return short_name if not short_name.is_empty() else full_name

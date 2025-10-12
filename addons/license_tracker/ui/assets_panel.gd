@@ -290,9 +290,9 @@ func _license_option_select_license(license: License) -> void:
 func _update_license_options() -> void:
 	var option_button := %license_options as OptionButton
 
-	for index in range(1, option_button.item_count):
-		var license := option_button.get_item_metadata(index)
-		license.property_value_changed.disconnect(_on_license_property_value_changed.bind(license, index))
+	for item_index in range(1, option_button.item_count):
+		var license: License = option_button.get_item_metadata(item_index)
+		license.display_name_changed.disconnect(_on_license_display_name_changed.bind(license, item_index))
 
 	option_button.clear()
 
@@ -305,17 +305,14 @@ func _update_license_options() -> void:
 	for index in database.licenses.size():
 		var license := database.licenses[index]
 		var item_index := index + 1
-		var license_name := _get_license_display_name(license)
+		var license_name := license.get_display_name()
 		option_button.add_item(license_name)
 		option_button.set_item_metadata(item_index, license)
-		license.property_value_changed.connect(_on_license_property_value_changed.bind(license, index + 1))
+		license.display_name_changed.connect(_on_license_display_name_changed.bind(license, item_index))
 
 
-func _on_license_property_value_changed(property: StringName, value: Variant, license: License, item_index: int) -> void:
-	if property != &"short_name" and property != &"full_name":
-		return
-	
-	var display_name := _get_license_display_name(license)
+func _on_license_display_name_changed(license: License, item_index: int) -> void:
+	var display_name := license.get_display_name()
 	%license_options.set_item_text(item_index, display_name)
 
 
@@ -726,10 +723,6 @@ func _edit_resource_at(path: String) -> void:
 
 func _navigate_to(path: String) -> void:
 	EditorInterface.get_file_system_dock().navigate_to_path(path)
-
-
-func _get_license_display_name(license: License) -> String:
-	return license.short_name if license.short_name else license.full_name
 
 
 func _create_file_dialog_filter_from_tracked_extensions() -> String:

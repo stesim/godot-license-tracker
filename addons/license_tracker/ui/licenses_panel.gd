@@ -176,12 +176,8 @@ func _update_selected_license_details() -> void:
 
 func _on_selected_license_property_value_changed(property: StringName, value: Variant) -> void:
 	match property:
-		&"short_name":
-			_update_text_value(%short_name_edit, value)
-			_update_selected_license_display_name()
-		&"full_name":
-			_update_text_value(%full_name_edit, value)
-			_update_selected_license_display_name()
+		&"short_name": _update_text_value(%short_name_edit, value)
+		&"full_name": _update_text_value(%full_name_edit, value)
 		&"url": _update_text_value(%url_edit, value)
 		&"file": _update_text_value(%file_edit, value)
 		&"text_edit": _update_text_value(%text_edit, value, false)
@@ -191,26 +187,13 @@ func _on_selected_license_property_value_changed(property: StringName, value: Va
 		&"allows_redistribution": _update_toggle_value(%redistribution_toggle, value)
 
 
-func _update_selected_license_display_name() -> void:
-	if _selected_license == null:
-		return
-
-	var item := _get_license_item(_selected_license)
-	if item >= 0:
-		var display_name := _get_license_display_name(_selected_license)
-		_license_list.set_item_text(item, display_name)
-
-
 func _add_license_to_list(license: License, index := -1) -> void:
-	var display_name := _get_license_display_name(license)
+	var display_name := license.get_display_name()
 	var initial_index := _license_list.add_item(display_name)
 	_license_list.set_item_metadata(initial_index, license)
 	if index >= 0:
 		_license_list.move_item(initial_index, index)
-
-
-func _get_license_display_name(license: License) -> String:
-	return license.short_name if license.short_name else license.full_name
+	license.display_name_changed.connect(_on_license_display_name_changed.bind(license))
 
 
 func _remove_license_from_list(license: License, index := -1) -> void:
@@ -221,6 +204,12 @@ func _remove_license_from_list(license: License, index := -1) -> void:
 		index = _get_license_item(license)
 		if index >= 0:
 			_license_list.remove_item(index)
+	license.display_name_changed.disconnect(_on_license_display_name_changed.bind(license))
+
+
+func _on_license_display_name_changed(license: License) -> void:
+	var item := _get_license_item(license)
+	_license_list.set_item_text(item, license.get_display_name())
 
 
 func _get_item_license(index: int) -> License:
