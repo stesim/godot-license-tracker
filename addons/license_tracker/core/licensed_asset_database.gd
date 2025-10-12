@@ -18,15 +18,15 @@ signal asset_removed(asset: LicensedAsset, index: int)
 signal property_value_changed(property: StringName, value: Variant)
 
 
-@export var tracked_extensions: PackedStringArray :
+@export_storage var tracked_extensions: PackedStringArray :
 	set(value):
 		if tracked_extensions != value:
 			tracked_extensions = value
 			property_value_changed.emit(&"tracked_extensions", value)
 
-@export var licenses: Array[License]
+@export_storage var licenses: Array[License]
 
-@export var assets: Array[LicensedAsset]
+@export_storage var assets: Array[LicensedAsset]
 
 
 func add_license(license: License, index := -1) -> void:
