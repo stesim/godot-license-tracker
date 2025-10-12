@@ -15,14 +15,6 @@ signal asset_added(asset: LicensedAsset, index: int)
 
 signal asset_removed(asset: LicensedAsset, index: int)
 
-signal property_value_changed(property: StringName, value: Variant)
-
-
-@export_storage var tracked_extensions: PackedStringArray :
-	set(value):
-		if tracked_extensions != value:
-			tracked_extensions = value
-			property_value_changed.emit(&"tracked_extensions", value)
 
 @export_storage var licenses: Array[License]
 

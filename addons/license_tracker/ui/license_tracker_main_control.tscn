@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dcnxhlsipnccc" path="res://addons/license_tracker/ui/license_tracker_main_control.gd" id="1_63xny"]
 [ext_resource type="PackedScene" uid="uid://dh0dgc2e7d043" path="res://addons/license_tracker/ui/licenses_panel.tscn" id="1_lna87"]
 [ext_resource type="PackedScene" uid="uid://cfej71fyv8ols" path="res://addons/license_tracker/ui/assets_panel.tscn" id="2_mjyjp"]
-[ext_resource type="PackedScene" uid="uid://btwr2hj3cd26j" path="res://addons/license_tracker/ui/settings_panel.tscn" id="3_um8is"]
+[ext_resource type="PackedScene" uid="uid://dtxa4nkphcaqu" path="res://addons/license_tracker/ui/database_selection_panel.tscn" id="4_mjyjp"]
 
 [node name="license_tracker_main_control" type="Control"]
 layout_mode = 3
@@ -36,11 +36,18 @@ visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="Settings" parent="tabs" instance=ExtResource("3_um8is")]
-unique_name_in_owner = true
+[node name="database_selection_container" type="CenterContainer" parent="."]
 visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="database_selection" parent="database_selection_container" instance=ExtResource("4_mjyjp")]
+unique_name_in_owner = true
 layout_mode = 2
-metadata/_tab_index = 2
 
 [node name="restart_button" type="Button" parent="."]
 visible = false

@@ -53,6 +53,5 @@ retrieved = "2025-10-09 23:36:18"
 
 [resource]
 script = ExtResource("8_vdyhs")
-tracked_extensions = PackedStringArray("atlastex", "curvetex", "dpitex", "meshtex", "tex", "png", "bmp", "hdr", "jpg", "jpeg", "svg", "tga", "exr", "webp", "dds", "mp3str", "oggvorbisstr", "sample", "wav", "mp3", "ogg", "dae", "obj", "escn", "fbx", "gltf", "glb", "blend", "fontdata", "ttf", "ttc", "otf", "otc", "woff", "woff2", "pfb", "pfm", "font", "fnt")
 licenses = Array[ExtResource("2_loe3j")]([ExtResource("3_18pvh"), ExtResource("4_h10df"), ExtResource("5_31xi2"), ExtResource("6_yfkol"), ExtResource("7_7foow")])
 assets = Array[ExtResource("1_2qpb5")]([SubResource("Resource_2qpb5"), SubResource("Resource_loe3j"), SubResource("Resource_18pvh"), SubResource("Resource_h10df"), SubResource("Resource_31xi2")])

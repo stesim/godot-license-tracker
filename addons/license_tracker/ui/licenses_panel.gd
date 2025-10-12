@@ -7,9 +7,10 @@ const License := preload("../core/license.gd")
 const LicensedAssetDatabase := preload("../core/licensed_asset_database.gd")
 
 
-@export var is_plugin_instance := false
-
 @export var database: LicensedAssetDatabase : set = _set_database
+
+
+var is_plugin_instance := false
 
 
 var _selected_license: License : set = _set_selected_license

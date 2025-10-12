@@ -8,11 +8,16 @@ const LicensedAsset := preload("../core/licensed_asset.gd")
 
 const LicensedAssetDatabase := preload("../core/licensed_asset_database.gd")
 
+const LicenseTrackerSettings := preload("../core/license_tracker_settings.gd")
 
-@export var is_plugin_instance := false
 
 @export var database: LicensedAssetDatabase : set = _set_database
 
+
+var is_plugin_instance := false
+
+
+var _settings := LicenseTrackerSettings.new()
 
 var _selected_asset: LicensedAsset : set = _set_selected_asset
 
@@ -21,6 +26,8 @@ var _asset_load_dialog := _create_asset_load_dialog()
 var _resource_tree_visibility_update_queued := false
 
 var _resource_refresh_queued := true
+
+var _tracked_extensions := _settings.tracked_extensions
 
 
 @onready var _undo_redo := EditorInterface.get_editor_undo_redo()
@@ -74,8 +81,7 @@ func _ready() -> void:
 
 
 func _on_visibility_changed() -> void:
-	if _resource_refresh_queued and is_visible_in_tree():
-		_refresh_resources.call_deferred()
+	_check_for_resource_refresh()
 
 
 func _set_database(value: LicensedAssetDatabase) -> void:
@@ -90,7 +96,6 @@ func _set_database(value: LicensedAssetDatabase) -> void:
 		database.asset_removed.disconnect(_on_database_asset_removed)
 		database.license_added.disconnect(_on_database_license_added)
 		database.license_removed.disconnect(_on_database_license_removed)
-		database.property_value_changed.disconnect(_on_database_property_value_changed)
 
 	database = value
 
@@ -99,7 +104,6 @@ func _set_database(value: LicensedAssetDatabase) -> void:
 		database.asset_removed.connect(_on_database_asset_removed)
 		database.license_added.connect(_on_database_license_added)
 		database.license_removed.connect(_on_database_license_removed)
-		database.property_value_changed.connect(_on_database_property_value_changed)
 
 	_database_changed()
 
@@ -110,14 +114,16 @@ func _database_changed() -> void:
 
 	_asset_list.clear()
 
-	%add_licensed_button.disabled = database == null
-	%remove_licensed_button.disabled = database == null
+	_update_button(%add_licensed_button, database != null)
+	_update_button(%remove_licensed_button, database != null and _selected_asset != null)
+	_update_button(%scan_button, database != null)
 
 	if database != null:
 		for asset in database.assets:
 			_add_asset_to_list(asset)
 
 	_update_license_options()
+	_queue_resource_refresh()
 
 
 func _on_database_asset_added(asset: LicensedAsset, index: int) -> void:
@@ -351,8 +357,8 @@ func _browse_for_asset_paths(directory: bool) -> void:
 
 	_asset_load_dialog.clear_filters()
 
-	if not directory and not database.tracked_extensions.is_empty():
-		var filter := _create_file_dialog_filter_from_tracked_extensions()
+	if not directory and not _tracked_extensions.is_empty():
+		var filter := _create_file_dialog_filter_from_extensions(_tracked_extensions)
 		_asset_load_dialog.add_filter(filter, "Tracked Files")
 
 	_asset_load_dialog.popup_file_dialog()
@@ -376,7 +382,6 @@ func _add_asset_paths(asset: LicensedAsset, paths: PackedStringArray) -> void:
 		return
 
 	_undo_redo.create_action("Add asset path(s)", UndoRedo.MERGE_DISABLE, asset, true)
-	var previous_index := -1
 	for path in paths:
 		if path in asset.asset_paths:
 			continue
@@ -445,7 +450,7 @@ func _add_asset_path_to_list(path: String, index := -1) -> void:
 	var initial_index := _asset_path_list.add_item(path)
 	var file_type := (
 		&"Folder" if DirAccess.dir_exists_absolute(path)
-		else EditorInterface.get_resource_filesystem().get_file_type(path)
+		else (EditorInterface.get_resource_filesystem().get_file_type(path) as StringName)
 	)
 	var icon := _get_editor_icon(file_type)
 	_asset_path_list.set_item_icon(initial_index, icon)
@@ -523,10 +528,9 @@ func _get_licensed_item_asset(index: int) -> LicensedAsset:
 	return _asset_list.get_item_metadata(index) if index >= 0 else null
 
 
-func _on_database_property_value_changed(property: StringName, value: Variant) -> void:
-	match property:
-		&"tracked_extensions":
-			_queue_resource_refresh()
+func _check_for_resource_refresh() -> void:
+	if _resource_refresh_queued and is_visible_in_tree():
+		_refresh_resources.call_deferred()
 
 
 func _queue_resource_refresh() -> void:
@@ -544,6 +548,9 @@ func _refresh_resources() -> void:
 	_resource_refresh_queued = false
 
 	_resource_tree.clear()
+
+	if database == null:
+		return
 
 	var fs := EditorInterface.get_resource_filesystem()
 	var root_dir := fs.get_filesystem()
@@ -643,10 +650,10 @@ func _is_resource_imported(path: String) -> bool:
 
 
 func _is_resource_tracked(path: String) -> bool:
-	if database.tracked_extensions.is_empty():
+	if _tracked_extensions.is_empty():
 		return true
 
-	return path.get_extension() in database.tracked_extensions
+	return path.get_extension() in _tracked_extensions
 
 
 func _is_resource_licensed(path: String) -> bool:
@@ -680,7 +687,7 @@ func _resource_tree_get_drag_data(point: Vector2) -> Variant:
 	var selected_items: Array[TreeItem] = []
 	while selected_item != null:
 		selected_items.push_back(selected_item)
-		var path := selected_item.get_metadata(0)
+		var path: String = selected_item.get_metadata(0)
 		paths.push_back(path)
 		if DirAccess.dir_exists_absolute(path):
 			paths_contain_directory = true
@@ -725,12 +732,12 @@ func _navigate_to(path: String) -> void:
 	EditorInterface.get_file_system_dock().navigate_to_path(path)
 
 
-func _create_file_dialog_filter_from_tracked_extensions() -> String:
+func _create_file_dialog_filter_from_extensions(extensions: PackedStringArray) -> String:
 	var filter := ""
-	for i in database.tracked_extensions.size():
+	for i in extensions.size():
 		if i > 0:
 			filter += ", "
-		filter += "*." + database.tracked_extensions[i]
+		filter += "*." + extensions[i]
 	return filter
 
 

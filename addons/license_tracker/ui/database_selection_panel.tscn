@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3 uid="uid://dtxa4nkphcaqu"]
+
+[ext_resource type="Script" uid="uid://bdgs3sab76pxs" path="res://addons/license_tracker/ui/database_selection_panel.gd" id="1_xgfda"]
+
+[node name="database_selection_panel" type="VBoxContainer"]
+offset_right = 181.0
+offset_bottom = 101.0
+theme_override_constants/separation = 32
+script = ExtResource("1_xgfda")
+
+[node name="label" type="Label" parent="."]
+layout_mode = 2
+text = "No licensing database found"
+
+[node name="center" type="CenterContainer" parent="."]
+layout_mode = 2
+
+[node name="vbox" type="VBoxContainer" parent="center"]
+layout_mode = 2
+
+[node name="create_default_button" type="Button" parent="center/vbox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create at default path"
+
+[node name="create_custom_button" type="Button" parent="center/vbox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create at custom path"
+
+[node name="load_button" type="Button" parent="center/vbox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Load"
