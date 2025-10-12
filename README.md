@@ -2,6 +2,9 @@
 
 A Godot Editor plugin for keeping track of licenses of third-party assets in your Godot project.
 
+> [!IMPORTANT]
+> The plugin is still in development and likely not yet suitable for serious use.
+
 
 ## Screenshots
 
@@ -23,9 +26,6 @@ If there is any interest in the plugin, I will create proper releases and submit
 
 
 ## Usage
-
-> [!IMPORTANT]
-> The plugin is still in development and likely not suitable for serious use.
 
 After installing the plugin, make sure to enable it in the project settings (**Project** -> **Project Settings...** -> **Plugins**).
 As soon as it is enabled, a new **Licenses** tab appears in the main screen.
