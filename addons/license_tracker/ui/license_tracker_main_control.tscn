@@ -51,5 +51,5 @@ anchor_right = 1.0
 offset_left = -117.0
 offset_bottom = 31.0
 grow_horizontal = 0
-text = "Restart Plugin"
+text = "Reload Plugin"
 flat = true

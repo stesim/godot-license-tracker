@@ -5,7 +5,7 @@ extends Control
 const LicensedAssetDatabase := preload("../core/licensed_asset_database.gd")
 
 
-const DEBUG_ENABLED := false
+const DEBUG_SETTING := &"license_tracker/debug"
 
 
 @export var is_plugin_instance := false :
@@ -26,7 +26,7 @@ func _enter_tree() -> void:
 	%Licenses.database = database
 	%Settings.database = database
 
-	if DEBUG_ENABLED:
+	if ProjectSettings.get_setting(DEBUG_SETTING, false):
 		$restart_button.show()
 		$restart_button.pressed.connect(
 			func() -> void:
