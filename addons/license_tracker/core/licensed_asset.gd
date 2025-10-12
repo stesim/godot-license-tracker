@@ -82,3 +82,50 @@ func remove_asset_path(asset_path: String, index := -1) -> void:
 		asset_paths.remove_at(index)
 
 	asset_path_removed.emit(asset_path, index)
+
+
+func generate_attribution() -> String:
+	return (
+		_generate_custom_attribution(custom_attribution) if custom_attribution
+		else _generate_default_attribution()
+	)
+
+
+func _generate_custom_attribution(template: String) -> String:
+	var arguments := {
+		author = author,
+		name = original_name,
+		source = source,
+		retrieved = retrieved,
+	}
+	if license != null:
+		arguments["license_short"] = license.short_name
+		arguments["license_full"] = license.full_name
+		arguments["license_url"] = license.url
+	else:
+		arguments["license_short"] = ""
+		arguments["license_full"] = ""
+		arguments["license_url"] = ""
+	return template.format(arguments)
+
+
+func _generate_default_attribution() -> String:
+	var attribution := "\"%s\"" % original_name
+	if author:
+		attribution += " by " + author
+
+	if source:
+		attribution += " (%s)" % source
+
+	attribution += " is licensed under"
+
+	if license:
+		attribution += " " + license.get_display_name()
+		if license.url:
+			attribution += " (%s)" % license.url
+	else:
+		attribution += " an unknown license"
+
+	attribution += "."
+
+	return attribution

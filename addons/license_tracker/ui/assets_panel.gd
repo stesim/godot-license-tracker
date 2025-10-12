@@ -29,6 +29,8 @@ var _resource_refresh_queued := true
 
 var _tracked_extensions := _settings.tracked_extensions
 
+var _credits_preview_dialog: AcceptDialog
+
 
 @onready var _undo_redo := EditorInterface.get_editor_undo_redo()
 
@@ -43,12 +45,15 @@ func _ready() -> void:
 	if Engine.is_editor_hint() and not is_plugin_instance:
 		return
 
+	_credits_preview_dialog = _create_credits_preview_dialog()
+
 	_database_changed()
 	_update_selected_asset_details()
 
 	_setup_button(%add_licensed_button, _on_add_licensed_button_pressed, &"Add")
 	_setup_button(%remove_licensed_button, _on_remove_licensed_button_pressed, &"Remove")
 	_setup_button(%scan_button, _on_scan_button_pressed, &"Reload")
+	_setup_button(%credits_preview_button, _on_credits_preview_button_pressed, &"NodeInfo")
 	_setup_button(%retrieval_now_button, _on_retrieval_now_button_pressed, &"Time")
 	_setup_button(%view_license_button, _on_view_license_button_pressed, &"ArrowRight")
 	_setup_button(%asset_browse_files_button, _on_asset_browse_files_button_pressed, &"FileBrowse")
@@ -115,8 +120,11 @@ func _database_changed() -> void:
 	_asset_list.clear()
 
 	_update_button(%add_licensed_button, database != null)
-	_update_button(%remove_licensed_button, database != null and _selected_asset != null)
 	_update_button(%scan_button, database != null)
+
+	if database == null:
+		_update_button(%remove_licensed_button, false)
+		_update_button(%credits_preview_button, false)
 
 	if database != null:
 		for asset in database.assets:
@@ -209,6 +217,7 @@ func _update_selected_asset_details() -> void:
 	var asset := _selected_asset
 	if asset != null:
 		_update_button(%remove_licensed_button, true)
+		_update_button(%credits_preview_button, true)
 		_update_editable(%author_edit, true, asset.author)
 		_update_editable(%original_name_edit, true, asset.original_name)
 		_update_editable(%description_edit, true, asset.description)
@@ -224,6 +233,7 @@ func _update_selected_asset_details() -> void:
 		_update_button(%asset_path_remove_button, true)
 	else:
 		_update_button(%remove_licensed_button, false)
+		_update_button(%credits_preview_button, false)
 		_update_editable(%author_edit, false)
 		_update_editable(%original_name_edit, false)
 		_update_editable(%description_edit, false)
@@ -328,6 +338,20 @@ func _on_database_license_added(_license: License, _index: int) -> void:
 
 func _on_database_license_removed(_license: License, _index: int) -> void:
 	_update_license_options()
+
+
+func _on_credits_preview_button_pressed() -> void:
+	if _selected_asset != null:
+		_credits_preview_dialog.dialog_text = _selected_asset.generate_attribution()
+		EditorInterface.popup_dialog_centered_clamped(_credits_preview_dialog, Vector2(512, 0))
+
+
+func _create_credits_preview_dialog() -> AcceptDialog:
+	var dialog := AcceptDialog.new()
+	dialog.title = "Attribution Preview"
+	dialog.dialog_autowrap = true
+	dialog.set_unparent_when_invisible(true)
+	return dialog
 
 
 func _create_asset_load_dialog() -> EditorFileDialog:

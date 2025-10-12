@@ -83,6 +83,14 @@ layout_mode = 2
 
 [node name="right_toolbar" type="HBoxContainer" parent="hsplit/right_pane"]
 layout_mode = 2
+alignment = 2
+
+[node name="credits_preview_button" type="Button" parent="hsplit/right_pane/right_toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Display the generated attribution"
+text = "Credits Preview"
+flat = true
 
 [node name="grid_container" type="GridContainer" parent="hsplit/right_pane"]
 layout_mode = 2

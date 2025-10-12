@@ -46,6 +46,7 @@ retrieved = "2025-10-09 23:33:09"
 [sub_resource type="Resource" id="Resource_31xi2"]
 script = ExtResource("1_2qpb5")
 asset_paths = PackedStringArray("res://assets/sounds/creature1.ogg", "res://assets/sounds/lose1.ogg")
+author = "Kenney"
 original_name = "Kenney Retro Sounds 1"
 license = ExtResource("3_18pvh")
 source = "https://kenney.itch.io/kenney-game-assets"
