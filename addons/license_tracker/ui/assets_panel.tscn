@@ -82,6 +82,7 @@ select_mode = 2
 layout_mode = 2
 
 [node name="right_toolbar" type="HBoxContainer" parent="hsplit/right_pane"]
+visible = false
 layout_mode = 2
 alignment = 2
 
@@ -120,10 +121,19 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = "Source"
 
-[node name="source_edit" type="LineEdit" parent="hsplit/right_pane/grid_container"]
+[node name="hbox_3" type="HBoxContainer" parent="hsplit/right_pane/grid_container"]
+layout_mode = 2
+
+[node name="source_edit" type="LineEdit" parent="hsplit/right_pane/grid_container/hbox_3"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="open_source_button" type="Button" parent="hsplit/right_pane/grid_container/hbox_3"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Open the source URI"
+text = "Open"
 
 [node name="label_5" type="Label" parent="hsplit/right_pane/grid_container"]
 layout_mode = 2

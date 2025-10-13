@@ -31,6 +31,8 @@ var _tracked_extensions := _settings.tracked_extensions
 
 var _credits_preview_dialog: AcceptDialog
 
+var _external_link_confirmation_dialog: ConfirmationDialog
+
 
 @onready var _undo_redo := EditorInterface.get_editor_undo_redo()
 
@@ -46,6 +48,7 @@ func _ready() -> void:
 		return
 
 	_credits_preview_dialog = _create_credits_preview_dialog()
+	_external_link_confirmation_dialog = _create_external_link_confirmation_dialog()
 
 	_database_changed()
 	_update_selected_asset_details()
@@ -53,6 +56,7 @@ func _ready() -> void:
 	_setup_button(%add_licensed_button, _on_add_licensed_button_pressed, &"Add")
 	_setup_button(%remove_licensed_button, _on_remove_licensed_button_pressed, &"Remove")
 	_setup_button(%scan_button, _on_scan_button_pressed, &"Reload")
+	_setup_button(%open_source_button, _on_open_source_button_pressed, &"ExternalLink")
 	_setup_button(%credits_preview_button, _on_credits_preview_button_pressed, &"NodeInfo")
 	_setup_button(%retrieval_now_button, _on_retrieval_now_button_pressed, &"Time")
 	_setup_button(%view_license_button, _on_view_license_button_pressed, &"ArrowRight")
@@ -124,7 +128,6 @@ func _database_changed() -> void:
 
 	if database == null:
 		_update_button(%remove_licensed_button, false)
-		_update_button(%credits_preview_button, false)
 
 	if database != null:
 		for asset in database.assets:
@@ -217,6 +220,7 @@ func _update_selected_asset_details() -> void:
 	var asset := _selected_asset
 	if asset != null:
 		_update_button(%remove_licensed_button, true)
+		_update_button(%open_source_button, not asset.source.is_empty())
 		_update_button(%credits_preview_button, true)
 		_update_editable(%author_edit, true, asset.author)
 		_update_editable(%original_name_edit, true, asset.original_name)
@@ -233,6 +237,7 @@ func _update_selected_asset_details() -> void:
 		_update_button(%asset_path_remove_button, true)
 	else:
 		_update_button(%remove_licensed_button, false)
+		_update_button(%open_source_button, false)
 		_update_button(%credits_preview_button, false)
 		_update_editable(%author_edit, false)
 		_update_editable(%original_name_edit, false)
@@ -282,7 +287,9 @@ func _on_selected_asset_property_value_changed(property: StringName, value: Vari
 			_license_option_select_license(value)
 			_update_button(%view_license_button, value != null)
 		&"description": _update_text_value(%description_edit, value)
-		&"source": _update_text_value(%source_edit, value)
+		&"source":
+			_update_text_value(%source_edit, value)
+			_update_button(%open_source_button, not value.is_empty())
 		&"retrieved": _update_text_value(%retrieval_time_edit, value)
 		&"custom_attribution": _update_text_value(%attribution_edit, value)
 		&"is_modified": pass # TODO
@@ -338,6 +345,38 @@ func _on_database_license_added(_license: License, _index: int) -> void:
 
 func _on_database_license_removed(_license: License, _index: int) -> void:
 	_update_license_options()
+
+
+func _on_open_source_button_pressed() -> void:
+	if _selected_asset != null:
+		_open_external_link(_selected_asset.source)
+
+
+func _open_external_link(url: String) -> void:
+	_external_link_confirmation_dialog.dialog_text = (
+		"Proceed only if you trust the following link:\n\n%s" % url
+	)
+	_external_link_confirmation_dialog.set_meta(&"target_uri", url)
+	EditorInterface.popup_dialog_centered_clamped(_external_link_confirmation_dialog, Vector2(512, 0))
+
+
+func _create_external_link_confirmation_dialog() -> ConfirmationDialog:
+	var dialog := ConfirmationDialog.new()
+	dialog.dialog_autowrap = true
+	dialog.set_unparent_when_invisible(true)
+	dialog.confirmed.connect(_on_external_link_confirmation_dialog_confirmed)
+	dialog.canceled.connect(_on_external_link_confirmation_dialog_canceled)
+	return dialog
+
+
+func _on_external_link_confirmation_dialog_confirmed() -> void:
+	var url: String = _external_link_confirmation_dialog.get_meta(&"target_uri", "")
+	if url:
+		OS.shell_open(url)
+
+
+func _on_external_link_confirmation_dialog_canceled() -> void:
+	_external_link_confirmation_dialog.remove_meta(&"target_uri")
 
 
 func _on_credits_preview_button_pressed() -> void:
