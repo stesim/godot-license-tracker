@@ -22,7 +22,10 @@ signal asset_removed(asset: LicensedAsset, index: int)
 
 
 func add_license(license: License, index := -1) -> void:
-	licenses.insert(index, license)
+	if index == -1:
+		licenses.push_back(license)
+	else:
+		licenses.insert(index, license)
 	license_added.emit(license, index)
 
 
@@ -39,7 +42,10 @@ func remove_license(license: License, index := -1) -> void:
 
 
 func add_asset(asset: LicensedAsset, index := -1) -> void:
-	assets.insert(index, asset)
+	if index == -1:
+		assets.push_back(asset)
+	else:
+		assets.insert(index, asset)
 	asset_added.emit(asset, index)
 
 

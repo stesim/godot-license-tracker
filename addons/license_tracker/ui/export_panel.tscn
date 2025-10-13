@@ -1,0 +1,86 @@
+[gd_scene load_steps=2 format=3 uid="uid://coof53brpiqc4"]
+
+[ext_resource type="Script" uid="uid://c85sd27rhkvks" path="res://addons/license_tracker/ui/export_panel.gd" id="1_lkfk7"]
+
+[node name="export_panel" type="HBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lkfk7")
+
+[node name="assets_pane" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="assets_toolbar" type="HBoxContainer" parent="assets_pane"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="assets_pane/assets_toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Assets"
+
+[node name="select_all_assets_button" type="Button" parent="assets_pane/assets_toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Select all assets"
+text = "Select All"
+flat = true
+
+[node name="deselect_all_assets_button" type="Button" parent="assets_pane/assets_toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Deselect all assets"
+text = "Deselect All"
+flat = true
+
+[node name="assets_tree" type="Tree" parent="assets_pane"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+select_mode = 1
+
+[node name="licenses_pane" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="licenses_toolbar" type="HBoxContainer" parent="licenses_pane"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="licenses_pane/licenses_toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Licenses"
+
+[node name="select_all_licenses_button" type="Button" parent="licenses_pane/licenses_toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Select all licenses"
+text = "Select All"
+flat = true
+
+[node name="deselect_all_licenses_button" type="Button" parent="licenses_pane/licenses_toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Deselect all licenses"
+text = "Deselect All"
+flat = true
+
+[node name="licenses_tree" type="Tree" parent="licenses_pane"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+select_mode = 1
+
+[node name="options_pane" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="export_button" type="Button" parent="options_pane"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Export to JSON..."
