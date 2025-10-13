@@ -19,6 +19,8 @@ var is_plugin_instance := false
 
 var _export_dialog: EditorFileDialog
 
+var _export_attributions_dialog: EditorFileDialog
+
 
 @onready var _assets_tree := %assets_tree as Tree
 
@@ -30,6 +32,7 @@ func _ready() -> void:
 		return
 
 	_export_dialog = _create_export_dialog()
+	_export_attributions_dialog = _create_export_attributions_dialog()
 
 	_set_up_button(%select_all_assets_button, _tree_set_checked.bind(_assets_tree, true), &"GuiCheckedDisabled")
 	_set_up_button(%deselect_all_assets_button, _tree_set_checked.bind(_assets_tree, false), &"GuiUncheckedDisabled")
@@ -37,6 +40,7 @@ func _ready() -> void:
 	_set_up_button(%deselect_all_licenses_button, _tree_set_checked.bind(_licenses_tree, false), &"GuiUncheckedDisabled")
 
 	_set_up_button(%export_button, _export_dialog.popup_file_dialog)
+	_set_up_button(%export_attributions_button, _export_attributions_dialog.popup_file_dialog)
 
 	_database_changed(null)
 
@@ -160,6 +164,22 @@ func _export_database(path: String) -> void:
 	JsonExport.new().export_combined(path, assets, licenses)
 
 
+func _export_attributions(path: String) -> void:
+	var format := (
+		LicensedAsset.AttributionFormat.MARKDOWN if path.get_extension() == "md"
+		else LicensedAsset.AttributionFormat.PLAIN
+	)
+
+	var attributions := PackedStringArray()
+	for asset in _get_selected_assets():
+		var attribution := asset.generate_attribution(format)
+		attributions.push_back(attribution)
+
+	var string := "\n\n".join(attributions)
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(string)
+
+
 func _get_selected_assets() -> Array[LicensedAsset]:
 	var assets: Array[LicensedAsset] = []
 	for item in _assets_tree.get_root().get_children():
@@ -203,6 +223,16 @@ func _create_export_dialog() -> EditorFileDialog:
 	dialog.file_mode = EditorFileDialog.FILE_MODE_SAVE_FILE
 	dialog.filters = ["*.json"]
 	dialog.file_selected.connect(_export_database)
+	dialog.access = EditorFileDialog.ACCESS_FILESYSTEM
+	add_child(dialog)
+	return dialog
+
+
+func _create_export_attributions_dialog() -> EditorFileDialog:
+	var dialog := EditorFileDialog.new()
+	dialog.file_mode = EditorFileDialog.FILE_MODE_SAVE_FILE
+	dialog.filters = ["*.txt; Plain text", "*.md; Markdown"]
+	dialog.file_selected.connect(_export_attributions)
 	dialog.access = EditorFileDialog.ACCESS_FILESYSTEM
 	add_child(dialog)
 	return dialog

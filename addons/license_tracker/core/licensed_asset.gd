@@ -5,6 +5,12 @@ extends Resource
 const License := preload("./license.gd")
 
 
+enum AttributionFormat {
+	PLAIN,
+	MARKDOWN,
+}
+
+
 signal asset_path_added(path: String, index: int)
 
 signal asset_path_removed(path: String, index: int)
@@ -84,10 +90,10 @@ func remove_asset_path(asset_path: String, index := -1) -> void:
 	asset_path_removed.emit(asset_path, index)
 
 
-func generate_attribution() -> String:
+func generate_attribution(format := AttributionFormat.PLAIN) -> String:
 	return (
 		_generate_custom_attribution(custom_attribution) if custom_attribution
-		else _generate_default_attribution()
+		else _generate_default_attribution(format)
 	)
 
 
@@ -109,23 +115,44 @@ func _generate_custom_attribution(template: String) -> String:
 	return template.format(arguments)
 
 
-func _generate_default_attribution() -> String:
+func _generate_default_attribution(format: AttributionFormat) -> String:
+	match format:
+		AttributionFormat.MARKDOWN:
+			return _generate_attribution_markdown()
+		_:
+			return _generate_attribution_plain()
+
+
+func _generate_attribution_markdown() -> String:
+	var title_part := "\"%s\"" % original_name
+	if author:
+		title_part += " by " + author
+	if source:
+		title_part = "[%s](%s)" % [title_part, source]
+
+	var license_part: String
+	if license:
+		license_part = license.get_display_name()
+		if license.url:
+			license_part = "[%s](%s)" % [license_part, license.url]
+	else:
+		license_part += "an unknown license"
+
+	return "%s is licensed under %s." % [title_part, license_part]
+
+
+func _generate_attribution_plain() -> String:
 	var attribution := "\"%s\"" % original_name
 	if author:
 		attribution += " by " + author
-
 	if source:
 		attribution += " (%s)" % source
-
 	attribution += " is licensed under"
-
 	if license:
 		attribution += " " + license.get_display_name()
 		if license.url:
 			attribution += " (%s)" % license.url
 	else:
 		attribution += " an unknown license"
-
 	attribution += "."
-
 	return attribution

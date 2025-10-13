@@ -59,3 +59,11 @@ func remove_asset(asset: LicensedAsset, index := -1) -> void:
 		assets.remove_at(index)
 
 	asset_removed.emit(asset, index)
+
+
+func generate_attributions(format := LicensedAsset.AttributionFormat.PLAIN) -> PackedStringArray:
+	var attributions := PackedStringArray()
+	for asset in assets:
+		var attribution := asset.generate_attribution(format)
+		attributions.push_back(attribution)
+	return attributions

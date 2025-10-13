@@ -84,3 +84,8 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 layout_mode = 2
 text = "Export to JSON..."
+
+[node name="export_attributions_button" type="Button" parent="options_pane"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Export attributions..."
