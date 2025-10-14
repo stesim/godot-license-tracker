@@ -1,4 +1,10 @@
-static func scan_editor_resource_directory_for_files(directory: EditorFileSystemDirectory, predicate: Callable, recursive := true, ignored_directories: PackedStringArray = [], results := PackedStringArray()) -> PackedStringArray:
+static func scan_editor_resource_directory_for_files(
+	directory: EditorFileSystemDirectory,
+	predicate := _always_true_file_predicate,
+	recursive := true,
+	ignored_directories: PackedStringArray = [],
+	results := PackedStringArray(),
+) -> PackedStringArray:
 	if directory.get_path() in ignored_directories:
 		return results
 
@@ -30,7 +36,10 @@ static func get_editor_drag_data_type(drag_data: Variant) -> String:
 
 
 static func get_editor_dragged_files(drag_data: Variant) -> PackedStringArray:
-	return drag_data.get("files", [] as PackedStringArray)
+	var files_value: Variant = drag_data.get("files")
+	if typeof(files_value) != TYPE_PACKED_STRING_ARRAY:
+		return []
+	return files_value
 
 
 static func navigate_to(path: String) -> void:
@@ -43,6 +52,14 @@ static func edit_resource_at(path: String) -> void:
 		EditorInterface.edit_resource(ResourceLoader.load(path))
 	else:
 		push_warning("Resource does not exist: ", path)
+
+
+static func open_path_in_editor(path: String) -> void:
+	if FileAccess.file_exists(path) or DirAccess.dir_exists_absolute(path):
+		navigate_to(path)
+
+	if ResourceLoader.exists(path):
+		EditorInterface.edit_resource(ResourceLoader.load(path))
 
 
 static func queue(callable: Callable) -> void:
@@ -67,3 +84,7 @@ static func _invoke_queued(callable: Callable) -> void:
 
 	callable.get_object().get_meta(&"__queued_calls").erase(callable)
 	callable.call()
+
+
+static func _always_true_file_predicate(_path: String) -> bool:
+	return true

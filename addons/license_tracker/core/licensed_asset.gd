@@ -20,17 +20,29 @@ signal file_changed(previous_path: String, new_path: String, index: int)
 signal property_value_changed(property: StringName, value: Variant)
 
 
+@export var asset_name: String :
+	set(value):
+		if asset_name != value:
+			asset_name = value
+			property_value_changed.emit(&"asset_name", value)
+
 @export var author: String :
 	set(value):
 		if author != value:
 			author = value
 			property_value_changed.emit(&"author", value)
 
-@export var asset_name: String :
+@export var copyright: String :
 	set(value):
-		if asset_name != value:
-			asset_name = value
-			property_value_changed.emit(&"asset_name", value)
+		if copyright != value:
+			copyright = value
+			property_value_changed.emit(&"copyright", value)
+
+@export var license_file: String :
+	set(value):
+		if license_file != value:
+			license_file = value
+			property_value_changed.emit(&"license_file", value)
 
 @export var license: License :
 	set(value):

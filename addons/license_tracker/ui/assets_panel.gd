@@ -10,11 +10,19 @@ const LicensedAssetDatabase := preload("../core/licensed_asset_database.gd")
 
 const LicenseTrackerSettings := preload("../core/license_tracker_settings.gd")
 
+const Utils := preload("../core/utils.gd")
+
+const UntrackedLicenseFileList := preload("./untracked_license_file_list.gd")
+
 
 @export var database: LicensedAssetDatabase : set = _set_database
 
 
-var is_plugin_instance := false
+var is_plugin_instance := false :
+	set(value):
+		if is_plugin_instance != value:
+			is_plugin_instance = value
+			%untracked_license_files_list.is_plugin_instance = is_plugin_instance
 
 
 var _settings := LicenseTrackerSettings.new()
@@ -33,6 +41,8 @@ var _credits_preview_dialog: AcceptDialog
 
 var _external_link_confirmation_dialog: ConfirmationDialog
 
+var _license_file_dialog: EditorFileDialog
+
 
 @onready var _undo_redo := EditorInterface.get_editor_undo_redo()
 
@@ -42,10 +52,14 @@ var _external_link_confirmation_dialog: ConfirmationDialog
 
 @onready var _file_list := %file_list as ItemList
 
+@onready var _untracked_license_files_list := %untracked_license_files_list as UntrackedLicenseFileList
+
 
 func _ready() -> void:
 	if Engine.is_editor_hint() and not is_plugin_instance:
 		return
+
+	_license_file_dialog = _create_license_file_dialog()
 
 	_credits_preview_dialog = _create_credits_preview_dialog()
 	_external_link_confirmation_dialog = _create_external_link_confirmation_dialog()
@@ -55,6 +69,7 @@ func _ready() -> void:
 
 	_setup_button(%add_licensed_button, _on_add_licensed_button_pressed, &"Add")
 	_setup_button(%remove_licensed_button, _on_remove_licensed_button_pressed, &"Remove")
+	_setup_button(%license_file_button, _license_file_dialog.popup_file_dialog, &"Load")
 	_setup_button(%open_source_button, _on_open_source_button_pressed, &"ExternalLink")
 	_setup_button(%credits_preview_button, _on_credits_preview_button_pressed, &"NodeInfo")
 	_setup_button(%retrieval_now_button, _on_retrieval_now_button_pressed, &"Time")
@@ -62,6 +77,7 @@ func _ready() -> void:
 	_setup_button(%add_files_button, _on_add_files_button_pressed, &"FileBrowse")
 	_setup_button(%add_folder_button, _on_add_folder_button_pressed, &"FolderBrowse")
 	_setup_button(%remove_file_button, _on_remove_file_button_pressed, &"Remove")
+	_setup_button(%create_from_license_file_button, _on_create_from_license_file_button_pressed, &"FileAccess")
 
 	visibility_changed.connect(_on_visibility_changed)
 
@@ -85,14 +101,19 @@ func _ready() -> void:
 	%source_edit.text_changed.connect(_set_asset_string_property.bind(&"source"))
 	%retrieval_time_edit.text_changed.connect(_set_asset_string_property.bind(&"retrieved"))
 	%attribution_edit.text_changed.connect(_set_asset_string_property.bind(&"custom_attribution"))
+	%copyright_edit.text_changed.connect(_set_asset_string_property.bind(&"copyright"))
+	%license_file_edit.text_changed.connect(_set_asset_string_property.bind(&"license_file"))
 	%license_options.item_selected.connect(_on_license_options_item_selected)
 
 	var fs := EditorInterface.get_resource_filesystem()
 	fs.filesystem_changed.connect(_queue_resource_refresh)
 
+	_untracked_license_files_list.updated.connect(_update_bottom_pane_visibility)
+
 
 func _on_visibility_changed() -> void:
 	_check_for_resource_refresh()
+	_untracked_license_files_list.active = is_visible_in_tree()
 
 
 func _set_database(value: LicensedAssetDatabase) -> void:
@@ -126,9 +147,7 @@ func _database_changed() -> void:
 	_asset_list.clear()
 
 	_update_button(%add_licensed_button, database != null)
-
-	if database == null:
-		_update_button(%remove_licensed_button, false)
+	_update_button(%create_from_license_file_button, database != null)
 
 	if database != null:
 		for asset in database.assets:
@@ -136,6 +155,8 @@ func _database_changed() -> void:
 
 	_update_license_options()
 	_queue_resource_refresh()
+
+	_untracked_license_files_list.database = database
 
 
 func _on_database_asset_added(asset: LicensedAsset, index: int) -> void:
@@ -154,7 +175,7 @@ func _on_database_asset_removed(asset: LicensedAsset, index: int) -> void:
 
 func _on_add_licensed_button_pressed() -> void:
 	var asset := LicensedAsset.new()
-	asset.asset_name = "Unnamed Asset"
+	asset.asset_name = "New Asset"
 	_add_asset_to_database(asset)
 
 
@@ -165,7 +186,7 @@ func _on_remove_licensed_button_pressed() -> void:
 
 
 func _add_asset_to_database(asset: LicensedAsset) -> void:
-	_undo_redo.create_action("Add licensed asset(s)", UndoRedo.MERGE_DISABLE, database)
+	_undo_redo.create_action("Add licensed asset", UndoRedo.MERGE_DISABLE, database)
 	var index := database.assets.size()
 	_undo_redo.add_do_method(database, &"add_asset", asset, index)
 	_undo_redo.add_undo_method(database, &"remove_asset", asset, index)
@@ -232,6 +253,9 @@ func _update_selected_asset_details() -> void:
 		_update_editable(%retrieval_time_edit, true, asset.retrieved)
 		_update_button(%retrieval_now_button, true)
 		_update_editable(%attribution_edit, true, asset.custom_attribution)
+		_update_editable(%copyright_edit, true, asset.copyright)
+		_update_editable(%license_file_edit, true, asset.license_file)
+		_update_button(%license_file_button, true)
 		_license_option_select_license(asset.license)
 		%license_options.disabled = false
 		_update_button(%view_license_button, asset.license != null)
@@ -249,6 +273,9 @@ func _update_selected_asset_details() -> void:
 		_update_editable(%retrieval_time_edit, false)
 		_update_button(%retrieval_now_button, false)
 		_update_editable(%attribution_edit, false)
+		_update_editable(%copyright_edit, false)
+		_update_editable(%license_file_edit, false)
+		_update_button(%license_file_button, false)
 		_license_option_select_license(null)
 		%license_options.disabled = true
 		_update_button(%view_license_button, false)
@@ -271,6 +298,15 @@ func _on_license_options_item_selected(index: int) -> void:
 		_set_asset_property(&"license", license)
 
 
+func _create_license_file_dialog() -> EditorFileDialog:
+	var dialog := EditorFileDialog.new()
+	dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_FILE
+	dialog.filters = ["*.txt, *.md"]
+	dialog.file_selected.connect(_set_asset_string_property.bind(&"license_file"))
+	add_child(dialog)
+	return dialog
+
+
 func _on_view_license_button_pressed() -> void:
 	# HACK
 	var tab_container: TabContainer = get_parent()
@@ -286,6 +322,8 @@ func _on_selected_asset_property_value_changed(property: StringName, value: Vari
 			_update_text_value(%name_edit, value)
 			var item_index := _get_asset_item(_selected_asset)
 			_asset_list.set_item_text(item_index, value)
+		&"copyright": _update_text_value(%copyright_edit, value)
+		&"license_file": _update_text_value(%license_file_edit, value)
 		&"license":
 			_license_option_select_license(value)
 			_update_button(%view_license_button, value != null)
@@ -432,7 +470,7 @@ func _browse_for_files(directory: bool) -> void:
 
 func _on_asset_load_dialog_files_selected(paths: PackedStringArray) -> void:
 	if _selected_asset != null:
-		_add_file(_selected_asset, paths)
+		_add_files(_selected_asset, paths)
 
 
 func _on_asset_load_dialog_dir_selected(path: String) -> void:
@@ -440,10 +478,10 @@ func _on_asset_load_dialog_dir_selected(path: String) -> void:
 		return
 	if not path.ends_with("/"):
 		path += "/"
-	_add_file(_selected_asset, [path])
+	_add_files(_selected_asset, [path])
 
 
-func _add_file(asset: LicensedAsset, paths: PackedStringArray) -> void:
+func _add_files(asset: LicensedAsset, paths: PackedStringArray) -> void:
 	if paths.is_empty():
 		return
 
@@ -552,41 +590,29 @@ func _update_file_in_list(path: String, new_path: String, index := -1) -> void:
 
 func _on_file_list_item_activated(index: int) -> void:
 	var path := _file_list.get_item_text(index)
-	if path.ends_with("/"):
-		_navigate_to(path)
-	else:
-		_edit_resource_at(path)
+	Utils.open_path_in_editor(path)
 
 
 func _file_list_can_drop_data(_point: Vector2, data: Variant) -> bool:
 	if _selected_asset == null:
 		return false
 
-	if typeof(data) != TYPE_DICTIONARY:
-		return false
-
-	match data.get(&"type", ""):
-		"files", "files_and_dirs": return true
-
-	return false
+	return (
+		Utils.is_editor_drag_data(data, "files")
+		or Utils.is_editor_drag_data(data, "files_and_dirs")
+	)
 
 
 func _file_list_drop_data(_point: Vector2, data: Variant) -> void:
-	if _selected_asset == null:
+	if _selected_asset != null:
 		return
 
-	if &"files" not in data or typeof(data.files) != TYPE_PACKED_STRING_ARRAY:
-		return
-
-	_add_file(_selected_asset, data.files)
+	var files := Utils.get_editor_dragged_files(data)
+	_add_files(_selected_asset, data.files)
 
 
 func _get_file_item(path: String) -> int:
-	for item_index in _asset_list.item_count:
-		var item_path := _file_list.get_item_text(item_index)
-		if item_path == path:
-			return item_index
-	return -1
+	return Utils.find_item_list_item_by_text(_asset_list, path)
 
 
 func _get_asset_item(asset: LicensedAsset) -> int:
@@ -770,10 +796,7 @@ func _on_resource_tree_item_activated() -> void:
 		return
 	
 	var path: String = selected_item.get_metadata(0)
-	if path.ends_with("/"):
-		_navigate_to(path)
-	else:
-		_edit_resource_at(path)
+	Utils.open_path_in_editor(path)
 
 
 func _resource_tree_get_drag_data(point: Vector2) -> Variant:
@@ -821,16 +844,32 @@ func _create_drag_preview(items: Array[TreeItem]) -> Control:
 	return vbox
 
 
-func _edit_resource_at(path: String) -> void:
-	if ResourceLoader.exists(path):
-		_navigate_to(path)
-		EditorInterface.edit_resource(ResourceLoader.load(path))
-	else:
-		push_warning("Resource does not exist: ", path)
+func _on_create_from_license_file_button_pressed() -> void:
+	if database == null:
+		return
+
+	var selected_path := _untracked_license_files_list.get_selected_file()
+	if selected_path.is_empty():
+		return
+
+	var asset := LicensedAsset.new()
+	var directory_path := selected_path.get_base_dir() + "/"
+	asset.asset_name = directory_path
+	asset.license_file = selected_path
+	asset.files = [directory_path]
+	_add_asset_to_database(asset)
 
 
-func _navigate_to(path: String) -> void:
-	EditorInterface.get_file_system_dock().navigate_to_path(path)
+#func _collect_files_in_directory(directory_path: String) -> PackedStringArray:
+#	var extensions := _settings.tracked_extensions
+#	var filter := func(path: String) -> bool:
+#		return path.get_extension().to_lower() in extensions
+#	var dir := EditorInterface.get_resource_filesystem().get_filesystem_path(directory_path)
+#	return Utils.scan_editor_resource_directory_for_files(dir, filter)
+
+
+func _update_bottom_pane_visibility() -> void:
+	%bottom_pane.visible = _untracked_license_files_list.item_count > 0
 
 
 func _create_file_dialog_filter_from_extensions(extensions: PackedStringArray) -> String:

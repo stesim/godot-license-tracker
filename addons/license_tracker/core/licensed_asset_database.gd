@@ -31,6 +31,13 @@ func get_license_by_file(path: String) -> License:
 	return null
 
 
+func get_asset_by_license_file(path: String) -> LicensedAsset:
+	for asset in assets:
+		if asset.license_file == path:
+			return asset
+	return null
+
+
 func add_license(license: License, index := -1) -> void:
 	if index == -1:
 		licenses.push_back(license)

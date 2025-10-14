@@ -71,6 +71,12 @@ func _ready() -> void:
 
 	_untracked_files_list.updated.connect(_update_bottom_pane_visibility)
 
+	visibility_changed.connect(_on_visibility_changed)
+
+
+func _on_visibility_changed() -> void:
+	_untracked_files_list.active = is_visible_in_tree()
+
 
 func _set_database(value: LicensedAssetDatabase) -> void:
 	if database == value:
