@@ -40,7 +40,7 @@ var _external_link_confirmation_dialog: ConfirmationDialog
 
 @onready var _resource_tree := %resource_tree as Tree
 
-@onready var _asset_path_list := %asset_path_list as ItemList
+@onready var _file_list := %file_list as ItemList
 
 
 func _ready() -> void:
@@ -59,9 +59,9 @@ func _ready() -> void:
 	_setup_button(%credits_preview_button, _on_credits_preview_button_pressed, &"NodeInfo")
 	_setup_button(%retrieval_now_button, _on_retrieval_now_button_pressed, &"Time")
 	_setup_button(%view_license_button, _on_view_license_button_pressed, &"ArrowRight")
-	_setup_button(%asset_browse_files_button, _on_asset_browse_files_button_pressed, &"FileBrowse")
-	_setup_button(%asset_browse_folder_button, _on_asset_browse_folder_button_pressed, &"FolderBrowse")
-	_setup_button(%asset_path_remove_button, _on_asset_path_remove_button_pressed, &"Remove")
+	_setup_button(%add_files_button, _on_add_files_button_pressed, &"FileBrowse")
+	_setup_button(%add_folder_button, _on_add_folder_button_pressed, &"FolderBrowse")
+	_setup_button(%remove_file_button, _on_remove_file_button_pressed, &"Remove")
 
 	visibility_changed.connect(_on_visibility_changed)
 
@@ -72,11 +72,11 @@ func _ready() -> void:
 		Callable(),
 		Callable(),
 	)
-	_asset_path_list.item_activated.connect(_on_asset_path_list_item_activated)
-	_asset_path_list.set_drag_forwarding(
+	_file_list.item_activated.connect(_on_file_list_item_activated)
+	_file_list.set_drag_forwarding(
 		Callable(),
-		_asset_path_list_can_drop_data,
-		_asset_path_list_drop_data,
+		_file_list_can_drop_data,
+		_file_list_drop_data,
 	)
 
 	%original_name_edit.text_changed.connect(_set_asset_string_property.bind(&"original_name"))
@@ -206,15 +206,15 @@ func _on_asset_list_item_selected(index: int) -> void:
 
 func _set_selected_asset(value: LicensedAsset) -> void:
 	if _selected_asset != null:
-		_selected_asset.asset_path_added.disconnect(_on_selected_asset_asset_path_added)
-		_selected_asset.asset_path_removed.disconnect(_on_selected_asset_asset_path_removed)
-		_selected_asset.asset_path_changed.disconnect(_on_selected_asset_asset_path_changed)
+		_selected_asset.file_added.disconnect(_on_selected_asset_file_added)
+		_selected_asset.file_removed.disconnect(_on_selected_asset_file_removed)
+		_selected_asset.file_changed.disconnect(_on_selected_asset_file_changed)
 		_selected_asset.property_value_changed.disconnect(_on_selected_asset_property_value_changed)
 	_selected_asset = value
 	if _selected_asset != null:
-		_selected_asset.asset_path_added.connect(_on_selected_asset_asset_path_added)
-		_selected_asset.asset_path_removed.connect(_on_selected_asset_asset_path_removed)
-		_selected_asset.asset_path_changed.connect(_on_selected_asset_asset_path_changed)
+		_selected_asset.file_added.connect(_on_selected_asset_file_added)
+		_selected_asset.file_removed.connect(_on_selected_asset_file_removed)
+		_selected_asset.file_changed.connect(_on_selected_asset_file_changed)
 		_selected_asset.property_value_changed.connect(_on_selected_asset_property_value_changed)
 	_update_selected_asset_details()
 
@@ -235,9 +235,9 @@ func _update_selected_asset_details() -> void:
 		_license_option_select_license(asset.license)
 		%license_options.disabled = false
 		_update_button(%view_license_button, asset.license != null)
-		_update_button(%asset_browse_files_button, true)
-		_update_button(%asset_browse_folder_button, true)
-		_update_button(%asset_path_remove_button, true)
+		_update_button(%add_files_button, true)
+		_update_button(%add_folder_button, true)
+		_update_button(%remove_file_button, true)
 	else:
 		_update_button(%remove_licensed_button, false)
 		_update_button(%open_source_button, false)
@@ -252,11 +252,11 @@ func _update_selected_asset_details() -> void:
 		_license_option_select_license(null)
 		%license_options.disabled = true
 		_update_button(%view_license_button, false)
-		_update_button(%asset_browse_files_button, false)
-		_update_button(%asset_browse_folder_button, false)
-		_update_button(%asset_path_remove_button, false)
+		_update_button(%add_files_button, false)
+		_update_button(%add_folder_button, false)
+		_update_button(%remove_file_button, false)
 
-	_update_asset_path_list()
+	_update_file_list()
 
 
 func _on_retrieval_now_button_pressed() -> void:
@@ -280,7 +280,7 @@ func _on_view_license_button_pressed() -> void:
 
 func _on_selected_asset_property_value_changed(property: StringName, value: Variant) -> void:
 	match property:
-		&"asset_paths": _update_asset_path_list()
+		&"files": _update_file_list()
 		&"author": _update_text_value(%author_edit, value)
 		&"original_name":
 			_update_text_value(%original_name_edit, value)
@@ -404,15 +404,15 @@ func _create_asset_load_dialog() -> EditorFileDialog:
 	return dialog
 
 
-func _on_asset_browse_files_button_pressed() -> void:
-	_browse_for_asset_paths(false)
+func _on_add_files_button_pressed() -> void:
+	_browse_for_files(false)
 
 
-func _on_asset_browse_folder_button_pressed() -> void:
-	_browse_for_asset_paths(true)
+func _on_add_folder_button_pressed() -> void:
+	_browse_for_files(true)
 
 
-func _browse_for_asset_paths(directory: bool) -> void:
+func _browse_for_files(directory: bool) -> void:
 	if _selected_asset == null:
 		return
 
@@ -432,7 +432,7 @@ func _browse_for_asset_paths(directory: bool) -> void:
 
 func _on_asset_load_dialog_files_selected(paths: PackedStringArray) -> void:
 	if _selected_asset != null:
-		_add_asset_paths(_selected_asset, paths)
+		_add_file(_selected_asset, paths)
 
 
 func _on_asset_load_dialog_dir_selected(path: String) -> void:
@@ -440,125 +440,125 @@ func _on_asset_load_dialog_dir_selected(path: String) -> void:
 		return
 	if not path.ends_with("/"):
 		path += "/"
-	_add_asset_paths(_selected_asset, [path])
+	_add_file(_selected_asset, [path])
 
 
-func _add_asset_paths(asset: LicensedAsset, paths: PackedStringArray) -> void:
+func _add_file(asset: LicensedAsset, paths: PackedStringArray) -> void:
 	if paths.is_empty():
 		return
 
 	_undo_redo.create_action("Add asset path(s)", UndoRedo.MERGE_DISABLE, asset, true)
 	for path in paths:
-		if path in asset.asset_paths:
+		if path in asset.files:
 			continue
-		var index := asset.asset_paths.bsearch(path)
+		var index := asset.files.bsearch(path)
 		# NOTE: evaluate the "do" part immediately, so the insertion indices of the following items are
 		#       determined correctly
-		asset.add_asset_path(path, index)
-		_undo_redo.add_do_method(asset, &"add_asset_path", path, index)
-		_undo_redo.add_undo_method(asset, &"remove_asset_path", path, index)
+		asset.add_file(path, index)
+		_undo_redo.add_do_method(asset, &"add_file", path, index)
+		_undo_redo.add_undo_method(asset, &"remove_file", path, index)
 	_undo_redo.commit_action(false)
 
 
-func _on_asset_path_remove_button_pressed() -> void:
+func _on_remove_file_button_pressed() -> void:
 	if _selected_asset == null:
 		return
 
 	var paths := PackedStringArray()
-	var selected_indices := _asset_path_list.get_selected_items()
+	var selected_indices := _file_list.get_selected_items()
 	for index in selected_indices:
-		var path := _asset_path_list.get_item_text(index)
+		var path := _file_list.get_item_text(index)
 		paths.push_back(path)
 
-	_remove_asset_paths(_selected_asset, paths)
+	_remove_files(_selected_asset, paths)
 
 
-func _remove_asset_paths(asset: LicensedAsset, paths: PackedStringArray) -> void:
+func _remove_files(asset: LicensedAsset, paths: PackedStringArray) -> void:
 	if paths.is_empty():
 		return
 
 	_undo_redo.create_action("Remove asset path(s)", UndoRedo.MERGE_DISABLE, asset, true)
 	for path in paths:
-		if path not in asset.asset_paths:
+		if path not in asset.files:
 			continue
-		var index := asset.asset_paths.find(path)
+		var index := asset.files.find(path)
 		# NOTE: evaluate the "do" part immediately, so the indices of the following items are determined
 		#       correctly
-		asset.remove_asset_path(path, index)
-		_undo_redo.add_do_method(asset, &"remove_asset_path", path, index)
-		_undo_redo.add_undo_method(asset, &"add_asset_path", path, index)
+		asset.remove_file(path, index)
+		_undo_redo.add_do_method(asset, &"remove_file", path, index)
+		_undo_redo.add_undo_method(asset, &"add_file", path, index)
 	_undo_redo.commit_action(false)
 
 
-func _update_asset_path_list() -> void:
-	_asset_path_list.clear()
+func _update_file_list() -> void:
+	_file_list.clear()
 
 	if _selected_asset == null:
 		return
 
-	for path in _selected_asset.asset_paths:
-		_add_asset_path_to_list(path)
+	for path in _selected_asset.files:
+		_add_file_to_list(path)
 
 
-func _on_selected_asset_asset_path_added(path: String, index: int) -> void:
-	_add_asset_path_to_list(path, index)
+func _on_selected_asset_file_added(path: String, index: int) -> void:
+	_add_file_to_list(path, index)
 	# TODO: check visibility only against changed paths
 	_queue_resource_tree_visibility_update()
 
 
-func _on_selected_asset_asset_path_removed(path: String, index: int) -> void:
-	_remove_asset_path_from_list(path, index)
+func _on_selected_asset_file_removed(path: String, index: int) -> void:
+	_remove_file_from_list(path, index)
 	# TODO: check visibility only against changed paths
 	_queue_resource_tree_visibility_update()
 
 
-func _on_selected_asset_asset_path_changed(path: String, new_path: String, index: int) -> void:
-	_update_asset_path_in_list(path, new_path, index)
+func _on_selected_asset_file_changed(path: String, new_path: String, index: int) -> void:
+	_update_file_in_list(path, new_path, index)
 	# TODO: check visibility only against changed paths
 	_queue_resource_tree_visibility_update()
 
 
-func _add_asset_path_to_list(path: String, index := -1) -> void:
-	var initial_index := _asset_path_list.add_item(path)
+func _add_file_to_list(path: String, index := -1) -> void:
+	var initial_index := _file_list.add_item(path)
 	var file_type := (
 		&"Folder" if DirAccess.dir_exists_absolute(path)
 		else (EditorInterface.get_resource_filesystem().get_file_type(path) as StringName)
 	)
 	var icon := _get_file_icon(file_type)
-	_asset_path_list.set_item_icon(initial_index, icon)
+	_file_list.set_item_icon(initial_index, icon)
 	if index >= 0:
-		_asset_path_list.move_item(initial_index, index)
+		_file_list.move_item(initial_index, index)
 
 
-func _remove_asset_path_from_list(path: String, index := -1) -> void:
+func _remove_file_from_list(path: String, index := -1) -> void:
 	if index >= 0:
-		assert(path == _asset_path_list.get_item_text(index))
-		_asset_path_list.remove_item(index)
+		assert(path == _file_list.get_item_text(index))
+		_file_list.remove_item(index)
 	else:
-		index = _get_asset_path_item(path)
+		index = _get_file_item(path)
 		if index >= 0:
-			_asset_path_list.remove_item(index)
+			_file_list.remove_item(index)
 
 
-func _update_asset_path_in_list(path: String, new_path: String, index := -1) -> void:
+func _update_file_in_list(path: String, new_path: String, index := -1) -> void:
 	if index >= 0:
-		assert(path == _asset_path_list.get_item_text(index))
-		_asset_path_list.set_item_text(index, new_path)
+		assert(path == _file_list.get_item_text(index))
+		_file_list.set_item_text(index, new_path)
 	else:
-		index = _get_asset_path_item(path)
+		index = _get_file_item(path)
 		if index >= 0:
-			_asset_path_list.set_item_text(index, new_path)
+			_file_list.set_item_text(index, new_path)
 
 
-func _on_asset_path_list_item_activated(index: int) -> void:
-	var path := _asset_path_list.get_item_text(index)
+func _on_file_list_item_activated(index: int) -> void:
+	var path := _file_list.get_item_text(index)
 	if path.ends_with("/"):
 		_navigate_to(path)
 	else:
 		_edit_resource_at(path)
 
 
-func _asset_path_list_can_drop_data(_point: Vector2, data: Variant) -> bool:
+func _file_list_can_drop_data(_point: Vector2, data: Variant) -> bool:
 	if _selected_asset == null:
 		return false
 
@@ -571,19 +571,19 @@ func _asset_path_list_can_drop_data(_point: Vector2, data: Variant) -> bool:
 	return false
 
 
-func _asset_path_list_drop_data(_point: Vector2, data: Variant) -> void:
+func _file_list_drop_data(_point: Vector2, data: Variant) -> void:
 	if _selected_asset == null:
 		return
 
 	if &"files" not in data or typeof(data.files) != TYPE_PACKED_STRING_ARRAY:
 		return
 
-	_add_asset_paths(_selected_asset, data.files)
+	_add_file(_selected_asset, data.files)
 
 
-func _get_asset_path_item(path: String) -> int:
+func _get_file_item(path: String) -> int:
 	for item_index in _asset_list.item_count:
-		var item_path := _asset_path_list.get_item_text(item_index)
+		var item_path := _file_list.get_item_text(item_index)
 		if item_path == path:
 			return item_index
 	return -1
@@ -759,7 +759,7 @@ func _is_resource_tracked(path: String) -> bool:
 
 func _is_resource_licensed(path: String) -> bool:
 	for asset in database.assets:
-		if path in asset.asset_paths:
+		if path in asset.files:
 			return true
 	return false
 

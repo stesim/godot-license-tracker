@@ -11,11 +11,11 @@ enum AttributionFormat {
 }
 
 
-signal asset_path_added(path: String, index: int)
+signal file_added(path: String, index: int)
 
-signal asset_path_removed(path: String, index: int)
+signal file_removed(path: String, index: int)
 
-signal asset_path_changed(previous_path: String, new_path: String, index: int)
+signal file_changed(previous_path: String, new_path: String, index: int)
 
 signal property_value_changed(property: StringName, value: Variant)
 
@@ -68,54 +68,61 @@ signal property_value_changed(property: StringName, value: Variant)
 			is_modified = value
 			property_value_changed.emit(&"is_modified", value)
 
-@export_file var asset_paths: PackedStringArray :
+@export_file var files: PackedStringArray :
 	set(value):
-		if asset_paths != value:
-			asset_paths = value
-			property_value_changed.emit(&"asset_paths", value)
+		if files != value:
+			files = value
+			property_value_changed.emit(&"files", value)
 
 
-func add_asset_path(asset_path: String, index := -1) -> void:
-	asset_paths.insert(index, asset_path)
-	asset_path_added.emit(asset_path, index)
+var asset_paths: PackedStringArray :
+	get: return files
+	set(value):
+		files = value
+		push_warning(get_script().resource_path, ": The property `asset_paths` is deprecated and will be removed in the future; use `files` instead.")
 
 
-func remove_asset_path(asset_path: String, index := -1) -> bool:
+func add_file(path: String, index := -1) -> void:
+	files.insert(index, path)
+	file_added.emit(path, index)
+
+
+func remove_file(path: String, index := -1) -> bool:
 	if index < 0:
-		index = asset_paths.find(asset_path)
+		index = files.find(path)
 		if index < 0:
 			return false
-		asset_paths.remove_at(index)
+		files.remove_at(index)
 	else:
-		assert(asset_paths[index] == asset_path)
-		asset_paths.remove_at(index)
+		assert(files[index] == path)
+		files.remove_at(index)
 
-	asset_path_removed.emit(asset_path, index)
+	file_removed.emit(path, index)
 	return true
 
 
-func remove_asset_paths_in_directory(directory_path: String) -> bool:
+func remove_directory_recursive(directory_path: String) -> bool:
 	var did_change := false
-	for index in range(asset_paths.size() - 1, -1, -1):
-		var path := asset_paths[index]
+	for index in range(files.size() - 1, -1, -1):
+		var path := files[index]
 		if path.begins_with(directory_path):
-			asset_paths.remove_at(index)
-			asset_path_removed.emit(path, index)
+			files.remove_at(index)
+			file_removed.emit(path, index)
 			did_change = true
 	return did_change
 
 
-func change_asset_path(asset_path: String, new_path: String, index := -1) -> bool:
+func change_file(current_path: String, new_path: String, index := -1) -> bool:
 	if index < 0:
-		index = asset_paths.find(asset_path)
+		index = files.find(current_path)
 		if index < 0:
 			return false
-		asset_paths[index] = new_path
+		files[index] = new_path
 	else:
-		assert(asset_paths[index] == asset_path)
-		asset_paths[index] = new_path
+		assert(files[index] == current_path)
+		files[index] = new_path
 	
-	asset_path_changed.emit(asset_path, new_path, index)
+	file_changed.emit(current_path, new_path, index)
 	return true
 
 

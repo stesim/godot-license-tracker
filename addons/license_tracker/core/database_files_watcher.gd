@@ -28,7 +28,7 @@ func _update_path(old_path: String, new_path: String, is_dir := false) -> void:
 
 	var did_change := false
 	for asset in database.assets:
-		if asset.change_asset_path(old_path, new_path):
+		if asset.change_file(old_path, new_path):
 			did_change = true
 
 	# NOTE: the database needs to be saved since the editor does not know that it changed and will
@@ -48,11 +48,11 @@ func _remove_path(path: String, is_dir := false) -> void:
 
 	if is_dir:
 		for asset in database.assets:
-			if asset.remove_asset_paths_in_directory(path):
+			if asset.remove_directory_recursive(path):
 				did_change = true
 	else:
 		for asset in database.assets:
-			if asset.remove_asset_path(path):
+			if asset.remove_file(path):
 				did_change = true
 
 	# NOTE: the database needs to be saved since the editor does not know that it changed and will

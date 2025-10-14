@@ -16,7 +16,7 @@ const OPTIONAL_ASSET_PROPERTIES: Dictionary[String, StringName] = {
 	"retrieved" = &"retrieved",
 	"custom_attribution" = &"custom_attribution",
 	"is_modified" = &"is_modified",
-	"files" = &"asset_paths",
+	"files" = &"files",
 }
 
 const OPTIONAL_LICENSE_PROPERTIES: Dictionary[String, StringName] = {

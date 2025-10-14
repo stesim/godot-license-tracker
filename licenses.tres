@@ -14,7 +14,7 @@ script = ExtResource("1_2qpb5")
 author = "Andrea Calabró"
 original_name = "Godot Logo"
 license = ExtResource("4_h10df")
-asset_paths = PackedStringArray("res://icon.svg")
+files = PackedStringArray("res://icon.svg")
 
 [sub_resource type="Resource" id="Resource_loe3j"]
 script = ExtResource("1_2qpb5")
@@ -23,7 +23,7 @@ original_name = "Kenney Fonts"
 license = ExtResource("3_18pvh")
 source = "https://kenney.nl/assets/kenney-fonts"
 retrieved = "2025-10-09 23:31:11"
-asset_paths = PackedStringArray("res://assets/fonts/Kenney Pixel.ttf")
+files = PackedStringArray("res://assets/fonts/Kenney Pixel.ttf")
 
 [sub_resource type="Resource" id="Resource_18pvh"]
 script = ExtResource("1_2qpb5")
@@ -32,7 +32,7 @@ original_name = "Kenney Animal Pack"
 license = ExtResource("3_18pvh")
 source = "https://kenney.nl/assets/animal-pack"
 retrieved = "2025-10-09 23:31:52"
-asset_paths = PackedStringArray("res://assets/textures/giraffe.png", "res://assets/textures/panda.png", "res://assets/textures/square.svg")
+files = PackedStringArray("res://assets/textures/giraffe.png", "res://assets/textures/panda.png", "res://assets/textures/square.svg")
 
 [sub_resource type="Resource" id="Resource_h10df"]
 script = ExtResource("1_2qpb5")
@@ -41,7 +41,7 @@ original_name = "Kenney Furniture Kit"
 license = ExtResource("3_18pvh")
 source = "https://kenney.nl/assets/furniture-kit"
 retrieved = "2025-10-09 23:33:09"
-asset_paths = PackedStringArray("res://assets/models/bedSingle.glb", "res://assets/models/chair.glb", "res://assets/models/loungeSofa.glb")
+files = PackedStringArray("res://assets/models/bedSingle.glb", "res://assets/models/chair.glb", "res://assets/models/loungeSofa.glb")
 
 [sub_resource type="Resource" id="Resource_31xi2"]
 script = ExtResource("1_2qpb5")
@@ -50,7 +50,7 @@ original_name = "Kenney Retro Sounds 1"
 license = ExtResource("3_18pvh")
 source = "https://kenney.itch.io/kenney-game-assets"
 retrieved = "2025-10-09 23:36:18"
-asset_paths = PackedStringArray("res://assets/sounds/creature1.ogg", "res://assets/sounds/lose1.ogg")
+files = PackedStringArray("res://assets/sounds/creature1.ogg", "res://assets/sounds/lose1.ogg")
 
 [resource]
 script = ExtResource("8_vdyhs")
