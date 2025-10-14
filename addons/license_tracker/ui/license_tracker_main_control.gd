@@ -40,11 +40,12 @@ func _enter_tree() -> void:
 	_database_changed()
 	_set_up_reload_button()
 
-	%database_selection.database_selected.connect(
-		func(selection: LicensedAssetDatabase) -> void:
-			database = selection
-			_settings.database_file = database.resource_path
-	)
+	%database_selection.database_selected.connect(_on_database_selection_database_selected)
+
+
+func _on_database_selection_database_selected(selected: LicensedAssetDatabase) -> void:
+	database = selected
+	_settings.database_file = database.resource_path
 
 
 func _database_changed() -> void:
@@ -68,9 +69,10 @@ func _database_changed() -> void:
 func _set_up_reload_button() -> void:
 	if _settings.debug:
 		$restart_button.show()
-		$restart_button.pressed.connect(
-			func() -> void:
-				EditorInterface.set_plugin_enabled.call_deferred("license_tracker", true)
-				EditorInterface.set_main_screen_editor.call_deferred("Licenses")
-				EditorInterface.set_plugin_enabled("license_tracker", false)
-		)
+		$restart_button.pressed.connect(_on_start_button_pressed)
+
+
+func _on_start_button_pressed() -> void:
+	EditorInterface.set_plugin_enabled.call_deferred("license_tracker", true)
+	EditorInterface.set_main_screen_editor.call_deferred("Licenses")
+	EditorInterface.set_plugin_enabled("license_tracker", false)

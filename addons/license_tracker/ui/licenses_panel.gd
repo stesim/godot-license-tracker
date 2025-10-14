@@ -20,6 +20,8 @@ var _selected_license: License : set = _set_selected_license
 
 @onready var _license_list := %license_list as ItemList
 
+@onready var _text_edit := %text_edit as TextEdit
+
 
 func _ready() -> void:
 	if Engine.is_editor_hint() and not is_plugin_instance:
@@ -42,9 +44,7 @@ func _ready() -> void:
 	%full_name_edit.text_changed.connect(_set_license_string_property.bind(&"full_name"))
 	%file_edit.text_changed.connect(_set_license_string_property.bind(&"file"))
 	%url_edit.text_changed.connect(_set_license_string_property.bind(&"url"))
-	%text_edit.text_changed.connect(
-		func() -> void: _set_license_string_property(%text_edit.text, &"text", false)
-	)
+	_text_edit.text_changed.connect(_on_text_edit_text_changed)
 
 
 func _set_database(value: LicensedAssetDatabase) -> void:
@@ -173,6 +173,10 @@ func _update_selected_license_details() -> void:
 
 		if _license_list.is_anything_selected():
 			_license_list.deselect_all()
+
+
+func _on_text_edit_text_changed() -> void:
+	_set_license_string_property(_text_edit.text, &"text", false)
 
 
 func _on_selected_license_property_value_changed(property: StringName, value: Variant) -> void:
