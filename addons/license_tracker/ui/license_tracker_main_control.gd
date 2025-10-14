@@ -6,6 +6,8 @@ const LicensedAssetDatabase := preload("../core/licensed_asset_database.gd")
 
 const LicenseTrackerSettings := preload("../core/license_tracker_settings.gd")
 
+const DatabaseFilesWatcher := preload("../core/database_files_watcher.gd")
+
 
 @export var database: LicensedAssetDatabase :
 	set(value):
@@ -26,16 +28,18 @@ var is_plugin_instance := false :
 
 var _settings := LicenseTrackerSettings.new()
 
+var _watcher: DatabaseFilesWatcher
+
 
 func _enter_tree() -> void:
 	if Engine.is_editor_hint() and not is_plugin_instance:
 		return
 
+	_watcher = DatabaseFilesWatcher.new()
+
 	_database_changed()
 	_set_up_reload_button()
 
-
-func _ready() -> void:
 	%database_selection.database_selected.connect(
 		func(selection: LicensedAssetDatabase) -> void:
 			database = selection
@@ -48,6 +52,9 @@ func _database_changed() -> void:
 		return
 	if Engine.is_editor_hint() and not is_plugin_instance:
 		return
+
+	if _watcher:
+		_watcher.database = database
 
 	%Assets.database = database
 	%Licenses.database = database

@@ -15,14 +15,10 @@ signal asset_path_added(path: String, index: int)
 
 signal asset_path_removed(path: String, index: int)
 
+signal asset_path_changed(previous_path: String, new_path: String, index: int)
+
 signal property_value_changed(property: StringName, value: Variant)
 
-
-@export_file var asset_paths: PackedStringArray :
-	set(value):
-		if asset_paths != value:
-			asset_paths = value
-			property_value_changed.emit(&"asset_paths", value)
 
 @export var author: String :
 	set(value):
@@ -72,22 +68,55 @@ signal property_value_changed(property: StringName, value: Variant)
 			is_modified = value
 			property_value_changed.emit(&"is_modified", value)
 
+@export_file var asset_paths: PackedStringArray :
+	set(value):
+		if asset_paths != value:
+			asset_paths = value
+			property_value_changed.emit(&"asset_paths", value)
+
 
 func add_asset_path(asset_path: String, index := -1) -> void:
 	asset_paths.insert(index, asset_path)
 	asset_path_added.emit(asset_path, index)
 
 
-func remove_asset_path(asset_path: String, index := -1) -> void:
+func remove_asset_path(asset_path: String, index := -1) -> bool:
 	if index < 0:
 		index = asset_paths.find(asset_path)
-		if index >= 0:
-			asset_paths.remove_at(index)
+		if index < 0:
+			return false
+		asset_paths.remove_at(index)
 	else:
 		assert(asset_paths[index] == asset_path)
 		asset_paths.remove_at(index)
 
 	asset_path_removed.emit(asset_path, index)
+	return true
+
+
+func remove_asset_paths_in_directory(directory_path: String) -> bool:
+	var did_change := false
+	for index in range(asset_paths.size() - 1, -1, -1):
+		var path := asset_paths[index]
+		if path.begins_with(directory_path):
+			asset_paths.remove_at(index)
+			asset_path_removed.emit(path, index)
+			did_change = true
+	return did_change
+
+
+func change_asset_path(asset_path: String, new_path: String, index := -1) -> bool:
+	if index < 0:
+		index = asset_paths.find(asset_path)
+		if index < 0:
+			return false
+		asset_paths[index] = new_path
+	else:
+		assert(asset_paths[index] == asset_path)
+		asset_paths[index] = new_path
+	
+	asset_path_changed.emit(asset_path, new_path, index)
+	return true
 
 
 func generate_attribution(format := AttributionFormat.PLAIN) -> String:

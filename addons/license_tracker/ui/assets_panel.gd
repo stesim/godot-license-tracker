@@ -207,11 +207,13 @@ func _set_selected_asset(value: LicensedAsset) -> void:
 	if _selected_asset != null:
 		_selected_asset.asset_path_added.disconnect(_on_selected_asset_asset_path_added)
 		_selected_asset.asset_path_removed.disconnect(_on_selected_asset_asset_path_removed)
+		_selected_asset.asset_path_changed.disconnect(_on_selected_asset_asset_path_changed)
 		_selected_asset.property_value_changed.disconnect(_on_selected_asset_property_value_changed)
 	_selected_asset = value
 	if _selected_asset != null:
 		_selected_asset.asset_path_added.connect(_on_selected_asset_asset_path_added)
 		_selected_asset.asset_path_removed.connect(_on_selected_asset_asset_path_removed)
+		_selected_asset.asset_path_changed.connect(_on_selected_asset_asset_path_changed)
 		_selected_asset.property_value_changed.connect(_on_selected_asset_property_value_changed)
 	_update_selected_asset_details()
 
@@ -509,13 +511,19 @@ func _on_selected_asset_asset_path_removed(path: String, index: int) -> void:
 	_queue_resource_tree_visibility_update()
 
 
+func _on_selected_asset_asset_path_changed(path: String, new_path: String, index: int) -> void:
+	_update_asset_path_in_list(path, new_path, index)
+	# TODO: check visibility only against changed paths
+	_queue_resource_tree_visibility_update()
+
+
 func _add_asset_path_to_list(path: String, index := -1) -> void:
 	var initial_index := _asset_path_list.add_item(path)
 	var file_type := (
 		&"Folder" if DirAccess.dir_exists_absolute(path)
 		else (EditorInterface.get_resource_filesystem().get_file_type(path) as StringName)
 	)
-	var icon := _get_editor_icon(file_type)
+	var icon := _get_file_icon(file_type)
 	_asset_path_list.set_item_icon(initial_index, icon)
 	if index >= 0:
 		_asset_path_list.move_item(initial_index, index)
@@ -529,6 +537,16 @@ func _remove_asset_path_from_list(path: String, index := -1) -> void:
 		index = _get_asset_path_item(path)
 		if index >= 0:
 			_asset_path_list.remove_item(index)
+
+
+func _update_asset_path_in_list(path: String, new_path: String, index := -1) -> void:
+	if index >= 0:
+		assert(path == _asset_path_list.get_item_text(index))
+		_asset_path_list.set_item_text(index, new_path)
+	else:
+		index = _get_asset_path_item(path)
+		if index >= 0:
+			_asset_path_list.set_item_text(index, new_path)
 
 
 func _on_asset_path_list_item_activated(index: int) -> void:
@@ -655,7 +673,7 @@ func _scan_dir_for_imported_assets(dir: EditorFileSystemDirectory, dir_item: Tre
 			file_item.set_text(0, file.get_file())
 			file_item.set_metadata(0, file)
 			var file_type := dir.get_file_type(i)
-			file_item.set_icon(0, _get_editor_icon(file_type))
+			file_item.set_icon(0, _get_file_icon(file_type))
 
 	return found_files
 
@@ -827,6 +845,10 @@ func _setup_button(button: Button, on_pressed: Callable, icon_name := &"") -> vo
 		button.icon = _get_editor_icon(icon_name)
 		button.text = ""
 	button.pressed.connect(on_pressed)
+
+
+func _get_file_icon(file_type: StringName) -> Texture2D:
+	return _get_editor_icon(file_type if file_type else &"FileBroken")
 
 
 func _get_editor_icon(icon_name: StringName) -> Texture2D:
