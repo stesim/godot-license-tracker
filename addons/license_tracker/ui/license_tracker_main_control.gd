@@ -21,8 +21,8 @@ var is_plugin_instance := false :
 		is_plugin_instance = value
 		%Assets.is_plugin_instance = is_plugin_instance
 		%Licenses.is_plugin_instance = is_plugin_instance
-		%Import.is_plugin_instance = is_plugin_instance
 		%Export.is_plugin_instance = is_plugin_instance
+		%Import.is_plugin_instance = is_plugin_instance
 		%database_selection.is_plugin_instance = is_plugin_instance
 
 
@@ -59,8 +59,8 @@ func _database_changed() -> void:
 
 	%Assets.database = database
 	%Licenses.database = database
-	%Import.database = database
 	%Export.database = database
+	%Import.database = database
 
 	$tabs.visible = database != null
 	$database_selection_container.visible = database == null

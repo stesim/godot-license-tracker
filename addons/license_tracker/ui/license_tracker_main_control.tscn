@@ -38,13 +38,13 @@ visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="Import" parent="tabs" instance=ExtResource("5_s11uy")]
+[node name="Export" parent="tabs" instance=ExtResource("4_qldl2")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 
-[node name="Export" parent="tabs" instance=ExtResource("4_qldl2")]
+[node name="Import" parent="tabs" instance=ExtResource("5_s11uy")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
