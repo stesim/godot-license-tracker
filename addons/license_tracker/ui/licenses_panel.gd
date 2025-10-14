@@ -19,6 +19,8 @@ var is_plugin_instance := false
 
 var _selected_license: License : set = _set_selected_license
 
+var _file_dialog: EditorFileDialog
+
 
 @onready var _undo_redo := EditorInterface.get_editor_undo_redo()
 
@@ -33,11 +35,14 @@ func _ready() -> void:
 	if Engine.is_editor_hint() and not is_plugin_instance:
 		return
 
+	_file_dialog = _create_file_dialog()
+
 	_database_changed()
-	_update_selected_license_details()
+	_selected_license_changed()
 
 	_setup_button(%add_license_button, _on_add_license_button_pressed, &"Add")
 	_setup_button(%remove_license_button, _on_remove_license_button_pressed, &"Remove")
+	_setup_button(%select_file_button, _file_dialog.popup_file_dialog, &"Load")
 	_setup_button(%license_from_file_button, _on_license_from_file_button_pressed, &"FileAccess")
 
 	_license_list.item_selected.connect(_on_license_list_item_selected)
@@ -170,15 +175,16 @@ func _set_selected_license(value: License) -> void:
 	_selected_license = value
 	if _selected_license != null:
 		_selected_license.property_value_changed.connect(_on_selected_license_property_value_changed)
-	_update_selected_license_details()
+	_selected_license_changed()
 
 
-func _update_selected_license_details() -> void:
+func _selected_license_changed() -> void:
 	var license := _selected_license
 	if license != null:
 		var is_editable := not license.read_only
 
 		_update_button(%remove_license_button, true)
+		_update_button(%select_file_button, is_editable)
 
 		_update_editable(%short_name_edit, is_editable, license.short_name)
 		_update_editable(%full_name_edit, is_editable, license.full_name)
@@ -197,6 +203,7 @@ func _update_selected_license_details() -> void:
 			_license_list.select(license_item)
 	else:
 		_update_button(%remove_license_button, false)
+		_update_button(%select_file_button, false)
 
 		_update_editable(%short_name_edit, false)
 		_update_editable(%full_name_edit, false)
@@ -229,6 +236,15 @@ func _file_edit_drop_data(_point: Vector2, data: Variant) -> void:
 	if _selected_license != null:
 		var file := Utils.get_editor_dragged_files(data)[0]
 		_set_license_string_property(file, &"file")
+
+
+func _create_file_dialog() -> EditorFileDialog:
+	var dialog := EditorFileDialog.new()
+	dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_FILE
+	dialog.filters = ["*.txt, *.md"]
+	dialog.file_selected.connect(_set_license_string_property.bind(&"file"))
+	add_child(dialog)
+	return dialog
 
 
 func _on_selected_license_property_value_changed(property: StringName, value: Variant) -> void:
@@ -326,7 +342,6 @@ func _on_license_from_file_button_pressed() -> void:
 	var selected_path := _untracked_files_list.get_item_text(selected_items[0])
 
 	var license := License.new()
-	license.full_name = "New License"
 	license.file = selected_path
 	_add_license_to_database(license)
 
