@@ -2,6 +2,9 @@
 extends Resource
 
 
+const License := preload("./license.gd")
+
+
 signal display_name_changed()
 
 signal property_value_changed(property: StringName, value: Variant)
@@ -39,6 +42,8 @@ signal property_value_changed(property: StringName, value: Variant)
 		if file != value:
 			file = value
 			property_value_changed.emit(&"file", value)
+			if short_name.is_empty() and full_name.is_empty():
+				display_name_changed.emit()
 
 @export_multiline var text: String :
 	set(value):
@@ -71,5 +76,15 @@ signal property_value_changed(property: StringName, value: Variant)
 			property_value_changed.emit(&"allows_redistribution", value)
 
 
+static func create_from_file(path: String) -> License:
+	var license := License.new()
+	license.file = path
+	return license
+
+
 func get_display_name() -> String:
-	return short_name if not short_name.is_empty() else full_name
+	return (
+		short_name if short_name
+		else full_name if full_name
+		else file
+	)

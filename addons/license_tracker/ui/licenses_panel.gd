@@ -6,6 +6,10 @@ const License := preload("../core/license.gd")
 
 const LicensedAssetDatabase := preload("../core/licensed_asset_database.gd")
 
+const LicenseFileWatcher := preload("../core/license_file_watcher.gd")
+
+const Utils := preload("../core/utils.gd")
+
 
 @export var database: LicensedAssetDatabase : set = _set_database
 
@@ -22,6 +26,8 @@ var _selected_license: License : set = _set_selected_license
 
 @onready var _text_edit := %text_edit as TextEdit
 
+@onready var _untracked_files_list := %untracked_files_list as ItemList
+
 
 func _ready() -> void:
 	if Engine.is_editor_hint() and not is_plugin_instance:
@@ -32,6 +38,7 @@ func _ready() -> void:
 
 	_setup_button(%add_license_button, _on_add_license_button_pressed, &"Add")
 	_setup_button(%remove_license_button, _on_remove_license_button_pressed, &"Remove")
+	_setup_button(%license_from_file_button, _on_license_from_file_button_pressed, &"FileAccess")
 
 	_license_list.item_selected.connect(_on_license_list_item_selected)
 
@@ -43,8 +50,26 @@ func _ready() -> void:
 	%short_name_edit.text_changed.connect(_set_license_string_property.bind(&"short_name"))
 	%full_name_edit.text_changed.connect(_set_license_string_property.bind(&"full_name"))
 	%file_edit.text_changed.connect(_set_license_string_property.bind(&"file"))
+	%file_edit.set_drag_forwarding(
+		Callable(),
+		_file_edit_can_drop_data,
+		_file_edit_drop_data,
+	)
 	%url_edit.text_changed.connect(_set_license_string_property.bind(&"url"))
 	_text_edit.text_changed.connect(_on_text_edit_text_changed)
+
+	_initialize_untracked_license_file_tracking()
+
+
+func _initialize_untracked_license_file_tracking() -> void:
+	var fs := EditorInterface.get_resource_filesystem()
+	fs.filesystem_changed.connect(_queue_untracked_file_list_update)
+
+	visibility_changed.connect(_queue_untracked_file_list_update)
+
+	_queue_untracked_file_list_update()
+
+	_untracked_files_list.item_activated.connect(_on_untracked_files_list_item_activated)
 
 
 func _set_database(value: LicensedAssetDatabase) -> void:
@@ -57,12 +82,16 @@ func _set_database(value: LicensedAssetDatabase) -> void:
 	if database != null:
 		database.license_added.disconnect(_on_database_license_added)
 		database.license_removed.disconnect(_on_database_license_removed)
+		for license in database.licenses:
+			license.property_value_changed.disconnect(_on_license_property_value_changed)
 
 	database = value
 
 	if database != null:
 		database.license_added.connect(_on_database_license_added)
 		database.license_removed.connect(_on_database_license_removed)
+		for license in database.licenses:
+			license.property_value_changed.connect(_on_license_property_value_changed)
 
 	_database_changed()
 
@@ -75,20 +104,29 @@ func _database_changed() -> void:
 
 	%add_license_button.disabled = database == null
 	%remove_license_button.disabled = database == null
+	%license_from_file_button.disabled = database == null
 
 	if database != null:
 		for license in database.licenses:
 			_add_license_to_list(license)
 
+	_queue_untracked_file_list_update()
+
 
 func _on_database_license_added(license: License, index: int) -> void:
 	_add_license_to_list(license, index)
+	license.property_value_changed.connect(_on_license_property_value_changed)
+	if license.file:
+		_queue_untracked_file_list_update()
 
 
 func _on_database_license_removed(license: License, index: int) -> void:
+	license.property_value_changed.disconnect(_on_license_property_value_changed)
 	_remove_license_from_list(license, index)
 	if license == _selected_license:
 		_selected_license = null
+	if license.file:
+		_queue_untracked_file_list_update()
 
 
 func _on_add_license_button_pressed() -> void:
@@ -104,7 +142,7 @@ func _on_remove_license_button_pressed() -> void:
 
 
 func _add_license_to_database(license: License) -> void:
-	_undo_redo.create_action("Add license(s)", UndoRedo.MERGE_DISABLE, database)
+	_undo_redo.create_action("Add license", UndoRedo.MERGE_DISABLE, database)
 	var index := database.licenses.size()
 	_undo_redo.add_do_method(database, &"add_license", license, index)
 	_undo_redo.add_undo_method(database, &"remove_license", license, index)
@@ -179,6 +217,20 @@ func _on_text_edit_text_changed() -> void:
 	_set_license_string_property(_text_edit.text, &"text", false)
 
 
+func _file_edit_can_drop_data(_point: Vector2, data: Variant) -> bool:
+	return (
+		%file_edit.editable
+		and Utils.is_editor_drag_data(data, "files")
+		and Utils.get_editor_dragged_files(data).size() == 1
+	)
+
+
+func _file_edit_drop_data(_point: Vector2, data: Variant) -> void:
+	if _selected_license != null:
+		var file := Utils.get_editor_dragged_files(data)[0]
+		_set_license_string_property(file, &"file")
+
+
 func _on_selected_license_property_value_changed(property: StringName, value: Variant) -> void:
 	match property:
 		&"short_name": _update_text_value(%short_name_edit, value)
@@ -215,6 +267,72 @@ func _remove_license_from_list(license: License, index := -1) -> void:
 func _on_license_display_name_changed(license: License) -> void:
 	var item := _get_license_item(license)
 	_license_list.set_item_text(item, license.get_display_name())
+
+
+func _queue_untracked_file_list_update() -> void:
+	if is_visible_in_tree():
+		Utils.queue(_update_untracked_file_list)
+
+
+func _on_license_property_value_changed(property: StringName, _value: Variant) -> void:
+	if property == &"file":
+		_queue_untracked_file_list_update()
+
+
+func _update_untracked_file_list() -> void:
+	if database == null:
+		_untracked_files_list.clear()
+		return
+
+	var checked_paths: Dictionary[String, bool] = {}
+	for index in range(_untracked_files_list.item_count - 1, -1, -1):
+		var path := _untracked_files_list.get_item_text(index)
+		var is_assigned_to_license := database.get_license_by_file(path) != null
+		if is_assigned_to_license or not FileAccess.file_exists(path):
+			_untracked_files_list.remove_item(index)
+		checked_paths[path] = true
+
+	var license_files := LicenseFileWatcher.scan_for_license_files()
+	for path in license_files:
+		if path in checked_paths:
+			continue
+		var is_assigned_to_license := database.get_license_by_file(path) != null
+		if not is_assigned_to_license and _get_untracked_file_item(path) < 0:
+			_untracked_files_list.add_item(path)
+
+	_untracked_files_list.sort_items_by_text()
+	_update_bottom_pane_visibility()
+
+
+func _on_untracked_files_list_item_activated(index: int) -> void:
+	if index < 0:
+		return
+	
+	var path := _untracked_files_list.get_item_text(index)
+	Utils.navigate_to(path)
+
+
+func _get_untracked_file_item(path: String) -> int:
+	return Utils.find_item_list_item_by_text(_untracked_files_list, path)
+
+
+func _on_license_from_file_button_pressed() -> void:
+	if database == null:
+		return
+	var selected_items := _untracked_files_list.get_selected_items()
+	if selected_items.size() != 1:
+		return
+
+	var selected_path := _untracked_files_list.get_item_text(selected_items[0])
+
+	var license := License.new()
+	license.full_name = "New License"
+	license.file = selected_path
+	_add_license_to_database(license)
+
+
+func _update_bottom_pane_visibility() -> void:
+	%bottom_pane.visible = _untracked_files_list.item_count > 0
 
 
 func _get_item_license(index: int) -> License:

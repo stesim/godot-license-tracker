@@ -24,6 +24,13 @@ signal asset_removed(asset: LicensedAsset, index: int)
 var _is_save_queued := false
 
 
+func get_license_by_file(path: String) -> License:
+	for license in licenses:
+		if license.file == path:
+			return license
+	return null
+
+
 func add_license(license: License, index := -1) -> void:
 	if index == -1:
 		licenses.push_back(license)

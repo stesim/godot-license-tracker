@@ -11,142 +11,171 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_1w1gw")
 
-[node name="hsplit" type="HSplitContainer" parent="."]
+[node name="vsplit" type="VSplitContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+split_offset = -256
+
+[node name="top_pane" type="HSplitContainer" parent="vsplit"]
+layout_mode = 2
+size_flags_vertical = 3
 split_offset = 256
 
-[node name="left_pane" type="VBoxContainer" parent="hsplit"]
+[node name="left_pane" type="VBoxContainer" parent="vsplit/top_pane"]
 custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 
-[node name="left_toolbar" type="HBoxContainer" parent="hsplit/left_pane"]
+[node name="left_toolbar" type="HBoxContainer" parent="vsplit/top_pane/left_pane"]
 layout_mode = 2
 alignment = 2
 
-[node name="add_license_button" type="Button" parent="hsplit/left_pane/left_toolbar"]
+[node name="add_license_button" type="Button" parent="vsplit/top_pane/left_pane/left_toolbar"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Add license"
 text = "Add"
 flat = true
 
-[node name="remove_license_button" type="Button" parent="hsplit/left_pane/left_toolbar"]
+[node name="remove_license_button" type="Button" parent="vsplit/top_pane/left_pane/left_toolbar"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Remove license(s)"
 text = "Remove"
 flat = true
 
-[node name="license_list" type="ItemList" parent="hsplit/left_pane"]
+[node name="license_list" type="ItemList" parent="vsplit/top_pane/left_pane"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="right_pane" type="VBoxContainer" parent="hsplit"]
+[node name="right_pane" type="VBoxContainer" parent="vsplit/top_pane"]
 layout_mode = 2
 
-[node name="right_toolbar" type="HBoxContainer" parent="hsplit/right_pane"]
+[node name="right_toolbar" type="HBoxContainer" parent="vsplit/top_pane/right_pane"]
 layout_mode = 2
 
-[node name="right_top_pane" type="HBoxContainer" parent="hsplit/right_pane"]
+[node name="right_top_pane" type="HBoxContainer" parent="vsplit/top_pane/right_pane"]
 layout_mode = 2
 
-[node name="grid" type="GridContainer" parent="hsplit/right_pane/right_top_pane"]
+[node name="grid" type="GridContainer" parent="vsplit/top_pane/right_pane/right_top_pane"]
 layout_mode = 2
 size_flags_horizontal = 3
 columns = 2
 
-[node name="label_3" type="Label" parent="hsplit/right_pane/right_top_pane/grid"]
+[node name="label_3" type="Label" parent="vsplit/top_pane/right_pane/right_top_pane/grid"]
 layout_mode = 2
 text = "Short Name"
 
-[node name="short_name_edit" type="LineEdit" parent="hsplit/right_pane/right_top_pane/grid"]
+[node name="short_name_edit" type="LineEdit" parent="vsplit/top_pane/right_pane/right_top_pane/grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="label_4" type="Label" parent="hsplit/right_pane/right_top_pane/grid"]
+[node name="label_4" type="Label" parent="vsplit/top_pane/right_pane/right_top_pane/grid"]
 layout_mode = 2
 text = "Full Name"
 
-[node name="full_name_edit" type="LineEdit" parent="hsplit/right_pane/right_top_pane/grid"]
+[node name="full_name_edit" type="LineEdit" parent="vsplit/top_pane/right_pane/right_top_pane/grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="label_2" type="Label" parent="hsplit/right_pane/right_top_pane/grid"]
+[node name="label_2" type="Label" parent="vsplit/top_pane/right_pane/right_top_pane/grid"]
 layout_mode = 2
 text = "File"
 
-[node name="file_edit" type="LineEdit" parent="hsplit/right_pane/right_top_pane/grid"]
+[node name="file_edit" type="LineEdit" parent="vsplit/top_pane/right_pane/right_top_pane/grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="label" type="Label" parent="hsplit/right_pane/right_top_pane/grid"]
+[node name="label" type="Label" parent="vsplit/top_pane/right_pane/right_top_pane/grid"]
 layout_mode = 2
 text = "URL"
 
-[node name="url_edit" type="LineEdit" parent="hsplit/right_pane/right_top_pane/grid"]
+[node name="url_edit" type="LineEdit" parent="vsplit/top_pane/right_pane/right_top_pane/grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="conditions" type="PanelContainer" parent="hsplit/right_pane/right_top_pane"]
+[node name="conditions" type="PanelContainer" parent="vsplit/top_pane/right_pane/right_top_pane"]
 layout_mode = 2
 
-[node name="vbox" type="VBoxContainer" parent="hsplit/right_pane/right_top_pane/conditions"]
+[node name="vbox" type="VBoxContainer" parent="vsplit/top_pane/right_pane/right_top_pane/conditions"]
 layout_mode = 2
 
-[node name="label" type="Label" parent="hsplit/right_pane/right_top_pane/conditions/vbox"]
+[node name="label" type="Label" parent="vsplit/top_pane/right_pane/right_top_pane/conditions/vbox"]
 layout_mode = 2
 text = "Conditions"
 
-[node name="attribution_toggle" type="CheckBox" parent="hsplit/right_pane/right_top_pane/conditions/vbox"]
+[node name="attribution_toggle" type="CheckBox" parent="vsplit/top_pane/right_pane/right_top_pane/conditions/vbox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Attribution"
 
-[node name="permissions" type="PanelContainer" parent="hsplit/right_pane/right_top_pane"]
+[node name="permissions" type="PanelContainer" parent="vsplit/top_pane/right_pane/right_top_pane"]
 layout_mode = 2
 
-[node name="vbox" type="VBoxContainer" parent="hsplit/right_pane/right_top_pane/permissions"]
+[node name="vbox" type="VBoxContainer" parent="vsplit/top_pane/right_pane/right_top_pane/permissions"]
 layout_mode = 2
 
-[node name="label" type="Label" parent="hsplit/right_pane/right_top_pane/permissions/vbox"]
+[node name="label" type="Label" parent="vsplit/top_pane/right_pane/right_top_pane/permissions/vbox"]
 layout_mode = 2
 text = "Permissions"
 
-[node name="modification_toggle" type="CheckBox" parent="hsplit/right_pane/right_top_pane/permissions/vbox"]
+[node name="modification_toggle" type="CheckBox" parent="vsplit/top_pane/right_pane/right_top_pane/permissions/vbox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Modifications"
 
-[node name="commercial_use_toggle" type="CheckBox" parent="hsplit/right_pane/right_top_pane/permissions/vbox"]
+[node name="commercial_use_toggle" type="CheckBox" parent="vsplit/top_pane/right_pane/right_top_pane/permissions/vbox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Commercial Use"
 
-[node name="redistribution_toggle" type="CheckBox" parent="hsplit/right_pane/right_top_pane/permissions/vbox"]
+[node name="redistribution_toggle" type="CheckBox" parent="vsplit/top_pane/right_pane/right_top_pane/permissions/vbox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Redistribution"
 
-[node name="details" type="VBoxContainer" parent="hsplit/right_pane"]
+[node name="details" type="VBoxContainer" parent="vsplit/top_pane/right_pane"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="label_3" type="Label" parent="hsplit/right_pane/details"]
+[node name="label_3" type="Label" parent="vsplit/top_pane/right_pane/details"]
 layout_mode = 2
 text = "Text"
 
-[node name="text_edit" type="TextEdit" parent="hsplit/right_pane/details"]
+[node name="text_edit" type="TextEdit" parent="vsplit/top_pane/right_pane/details"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 wrap_mode = 1
+
+[node name="bottom_pane" type="VBoxContainer" parent="vsplit"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="bottom_toolbar" type="HBoxContainer" parent="vsplit/bottom_pane"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="vsplit/bottom_pane/bottom_toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Untracked license files"
+
+[node name="license_from_file_button" type="Button" parent="vsplit/bottom_pane/bottom_toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Create a new license from the selected file"
+text = "New license from file"
+flat = true
+
+[node name="untracked_files_list" type="ItemList" parent="vsplit/bottom_pane"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
