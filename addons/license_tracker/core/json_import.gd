@@ -9,7 +9,7 @@ const LicensedAssetDatabase := preload("../core/licensed_asset_database.gd")
 
 
 const OPTIONAL_ASSET_PROPERTIES: Dictionary[String, StringName] = {
-	"name" = &"original_name",
+	"name" = &"asset_name",
 	"author" = &"author",
 	"description" = &"description",
 	"source" = &"source",

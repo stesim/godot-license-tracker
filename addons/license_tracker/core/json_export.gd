@@ -7,7 +7,7 @@ const LicensedAsset := preload("../core/licensed_asset.gd")
 
 
 const OPTIONAL_ASSET_PROPERTIES_1: Dictionary[StringName, StringName] = {
-	original_name = &"name",
+	asset_name = &"name",
 	author = &"author",
 }
 

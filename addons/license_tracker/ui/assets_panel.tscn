@@ -87,7 +87,7 @@ columns = 2
 layout_mode = 2
 text = "Name"
 
-[node name="original_name_edit" type="LineEdit" parent="hsplit/right_pane/grid_container"]
+[node name="name_edit" type="LineEdit" parent="hsplit/right_pane/grid_container"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

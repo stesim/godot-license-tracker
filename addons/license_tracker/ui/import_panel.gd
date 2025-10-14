@@ -107,7 +107,7 @@ func _add_asset_to_tree(asset: LicensedAsset, index := -1) -> void:
 	item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
 	item.set_editable(0, true)
 	item.set_checked(0, true)
-	item.set_text(0, asset.original_name)
+	item.set_text(0, asset.asset_name)
 	item.set_metadata(0, asset)
 
 

@@ -104,7 +104,7 @@ func _add_asset_to_tree(asset: LicensedAsset, index := -1) -> void:
 	item.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
 	item.set_editable(0, true)
 	item.set_checked(0, true)
-	item.set_text(0, asset.original_name)
+	item.set_text(0, asset.asset_name)
 	item.set_metadata(0, asset)
 
 	asset.property_value_changed.connect(_on_asset_property_value_changed.bind(asset))
@@ -124,7 +124,7 @@ func _remove_asset_from_tree(asset: LicensedAsset, index := -1) -> void:
 
 
 func _on_asset_property_value_changed(property: StringName, value: Variant, asset: LicensedAsset) -> void:
-	if property == &"original_name":
+	if property == &"asset_name":
 		var item := _get_asset_item(asset)
 		item.set_text(0, value)
 

@@ -26,11 +26,11 @@ signal property_value_changed(property: StringName, value: Variant)
 			author = value
 			property_value_changed.emit(&"author", value)
 
-@export var original_name: String :
+@export var asset_name: String :
 	set(value):
-		if original_name != value:
-			original_name = value
-			property_value_changed.emit(&"original_name", value)
+		if asset_name != value:
+			asset_name = value
+			property_value_changed.emit(&"asset_name", value)
 
 @export var license: License :
 	set(value):
@@ -74,6 +74,12 @@ signal property_value_changed(property: StringName, value: Variant)
 			files = value
 			property_value_changed.emit(&"files", value)
 
+
+var original_name: String :
+	get: return asset_name
+	set(value):
+		asset_name = value
+		push_warning(get_script().resource_path, ": The property `original_name` is deprecated and will be removed in the future; use `asset_name` instead.")
 
 var asset_paths: PackedStringArray :
 	get: return files
@@ -136,7 +142,7 @@ func generate_attribution(format := AttributionFormat.PLAIN) -> String:
 func _generate_custom_attribution(template: String) -> String:
 	var arguments := {
 		author = author,
-		name = original_name,
+		name = asset_name,
 		source = source,
 		retrieved = retrieved,
 	}
@@ -160,7 +166,7 @@ func _generate_default_attribution(format: AttributionFormat) -> String:
 
 
 func _generate_attribution_markdown() -> String:
-	var title_part := "\"%s\"" % original_name
+	var title_part := "\"%s\"" % asset_name
 	if author:
 		title_part += " by " + author
 	if source:
@@ -178,7 +184,7 @@ func _generate_attribution_markdown() -> String:
 
 
 func _generate_attribution_plain() -> String:
-	var attribution := "\"%s\"" % original_name
+	var attribution := "\"%s\"" % asset_name
 	if author:
 		attribution += " by " + author
 	if source:

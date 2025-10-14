@@ -79,7 +79,7 @@ func _ready() -> void:
 		_file_list_drop_data,
 	)
 
-	%original_name_edit.text_changed.connect(_set_asset_string_property.bind(&"original_name"))
+	%name_edit.text_changed.connect(_set_asset_string_property.bind(&"asset_name"))
 	%author_edit.text_changed.connect(_set_asset_string_property.bind(&"author"))
 	%description_edit.text_changed.connect(_set_asset_string_property.bind(&"description"))
 	%source_edit.text_changed.connect(_set_asset_string_property.bind(&"source"))
@@ -154,7 +154,7 @@ func _on_database_asset_removed(asset: LicensedAsset, index: int) -> void:
 
 func _on_add_licensed_button_pressed() -> void:
 	var asset := LicensedAsset.new()
-	asset.original_name = "Unnamed Asset"
+	asset.asset_name = "Unnamed Asset"
 	_add_asset_to_database(asset)
 
 
@@ -184,7 +184,7 @@ func _remove_assets_from_database(assets: Array[LicensedAsset]) -> void:
 
 
 func _add_asset_to_list(asset: LicensedAsset, index := -1) -> void:
-	var initial_index := _asset_list.add_item(asset.original_name)
+	var initial_index := _asset_list.add_item(asset.asset_name)
 	_asset_list.set_item_metadata(initial_index, asset)
 	if index >= 0:
 		_asset_list.move_item(initial_index, index)
@@ -226,7 +226,7 @@ func _update_selected_asset_details() -> void:
 		_update_button(%open_source_button, not asset.source.is_empty())
 		_update_button(%credits_preview_button, true)
 		_update_editable(%author_edit, true, asset.author)
-		_update_editable(%original_name_edit, true, asset.original_name)
+		_update_editable(%name_edit, true, asset.asset_name)
 		_update_editable(%description_edit, true, asset.description)
 		_update_editable(%source_edit, true, asset.source)
 		_update_editable(%retrieval_time_edit, true, asset.retrieved)
@@ -243,7 +243,7 @@ func _update_selected_asset_details() -> void:
 		_update_button(%open_source_button, false)
 		_update_button(%credits_preview_button, false)
 		_update_editable(%author_edit, false)
-		_update_editable(%original_name_edit, false)
+		_update_editable(%name_edit, false)
 		_update_editable(%description_edit, false)
 		_update_editable(%source_edit, false)
 		_update_editable(%retrieval_time_edit, false)
@@ -282,8 +282,8 @@ func _on_selected_asset_property_value_changed(property: StringName, value: Vari
 	match property:
 		&"files": _update_file_list()
 		&"author": _update_text_value(%author_edit, value)
-		&"original_name":
-			_update_text_value(%original_name_edit, value)
+		&"asset_name":
+			_update_text_value(%name_edit, value)
 			var item_index := _get_asset_item(_selected_asset)
 			_asset_list.set_item_text(item_index, value)
 		&"license":

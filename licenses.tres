@@ -12,14 +12,14 @@
 [sub_resource type="Resource" id="Resource_2qpb5"]
 script = ExtResource("1_2qpb5")
 author = "Andrea Calabró"
-original_name = "Godot Logo"
+asset_name = "Godot Logo"
 license = ExtResource("4_h10df")
 files = PackedStringArray("res://icon.svg")
 
 [sub_resource type="Resource" id="Resource_loe3j"]
 script = ExtResource("1_2qpb5")
 author = "Kenney"
-original_name = "Kenney Fonts"
+asset_name = "Kenney Fonts"
 license = ExtResource("3_18pvh")
 source = "https://kenney.nl/assets/kenney-fonts"
 retrieved = "2025-10-09 23:31:11"
@@ -28,7 +28,7 @@ files = PackedStringArray("res://assets/fonts/Kenney Pixel.ttf")
 [sub_resource type="Resource" id="Resource_18pvh"]
 script = ExtResource("1_2qpb5")
 author = "Kenney"
-original_name = "Kenney Animal Pack"
+asset_name = "Kenney Animal Pack"
 license = ExtResource("3_18pvh")
 source = "https://kenney.nl/assets/animal-pack"
 retrieved = "2025-10-09 23:31:52"
@@ -37,7 +37,7 @@ files = PackedStringArray("res://assets/textures/giraffe.png", "res://assets/tex
 [sub_resource type="Resource" id="Resource_h10df"]
 script = ExtResource("1_2qpb5")
 author = "Kenney"
-original_name = "Kenney Furniture Kit"
+asset_name = "Kenney Furniture Kit"
 license = ExtResource("3_18pvh")
 source = "https://kenney.nl/assets/furniture-kit"
 retrieved = "2025-10-09 23:33:09"
@@ -46,7 +46,7 @@ files = PackedStringArray("res://assets/models/bedSingle.glb", "res://assets/mod
 [sub_resource type="Resource" id="Resource_31xi2"]
 script = ExtResource("1_2qpb5")
 author = "Kenney"
-original_name = "Kenney Retro Sounds 1"
+asset_name = "Kenney Retro Sounds 1"
 license = ExtResource("3_18pvh")
 source = "https://kenney.itch.io/kenney-game-assets"
 retrieved = "2025-10-09 23:36:18"
