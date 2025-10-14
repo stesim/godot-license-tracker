@@ -64,12 +64,28 @@ Creating a license entry should be self-explanatory.
 You should provide either a short or full name for the license to be displayed properly in the list as well as the license selection in the [Assets](#assets) tab.
 The remaining data is technically optional at this point, although it is intended to be used for additional features in the future.
 
+### Export
+
+The **Export** tab currently offers two types of data export.
+
+The first kind of export provides the ability to export asset collections[^asset-collections] and/or licenses to a JSON file.
+This could be used for sharing data with another project or for editing the data using your text editor of choice instead of through the user interface.
+
+The second kind of export is the generation of attribution notices suitable for the credits section of a game.
+
+
+### Import
+
+In the **Import** tab, you can import previously exported JSON files and select asset collections[^asset-collections] and/or licenses to be added to your project.
+
+
+[^asset-collections]: *Asset collection* refers to the collections defined using the plugin. Actual asset data is never exported/imported.
+
 
 ## Planned Features
 
 Below are some features that may come in the future.
 
-- Automatic generation of a textual summary of all licensed assets suitable for the "Credits" section of a game
 - Control over which files are tracked using inclusion and exclusion lists of patterns or similar approaches
 - Filtering assets by permissions and/or restrictions imposed by licenses, e.g., listing all assets that do not allow commercial use
 - Improved UX: resource previews, alternative interface locations (main screen, bottom panel)
