@@ -65,13 +65,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Unlicensed"
 
-[node name="scan_button" type="Button" parent="hsplit/left_pane/unlicensed_pane/unlicensed_toolbar"]
-unique_name_in_owner = true
-layout_mode = 2
-tooltip_text = "Refresh unlicensed resources"
-text = "Scan"
-flat = true
-
 [node name="resource_tree" type="Tree" parent="hsplit/left_pane/unlicensed_pane"]
 unique_name_in_owner = true
 layout_mode = 2

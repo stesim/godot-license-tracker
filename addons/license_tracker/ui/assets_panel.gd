@@ -55,7 +55,6 @@ func _ready() -> void:
 
 	_setup_button(%add_licensed_button, _on_add_licensed_button_pressed, &"Add")
 	_setup_button(%remove_licensed_button, _on_remove_licensed_button_pressed, &"Remove")
-	_setup_button(%scan_button, _on_scan_button_pressed, &"Reload")
 	_setup_button(%open_source_button, _on_open_source_button_pressed, &"ExternalLink")
 	_setup_button(%credits_preview_button, _on_credits_preview_button_pressed, &"NodeInfo")
 	_setup_button(%retrieval_now_button, _on_retrieval_now_button_pressed, &"Time")
@@ -87,6 +86,9 @@ func _ready() -> void:
 	%retrieval_time_edit.text_changed.connect(_set_asset_string_property.bind(&"retrieved"))
 	%attribution_edit.text_changed.connect(_set_asset_string_property.bind(&"custom_attribution"))
 	%license_options.item_selected.connect(_on_license_options_item_selected)
+
+	var fs := EditorInterface.get_resource_filesystem()
+	fs.filesystem_changed.connect(_queue_resource_refresh)
 
 
 func _on_visibility_changed() -> void:
@@ -124,7 +126,6 @@ func _database_changed() -> void:
 	_asset_list.clear()
 
 	_update_button(%add_licensed_button, database != null)
-	_update_button(%scan_button, database != null)
 
 	if database == null:
 		_update_button(%remove_licensed_button, false)
@@ -621,61 +622,81 @@ func _queue_resource_refresh() -> void:
 			_refresh_resources.call_deferred()
 
 
-func _on_scan_button_pressed() -> void:
-	_queue_resource_refresh()
-
-
 func _refresh_resources() -> void:
 	_resource_refresh_queued = false
-
-	_resource_tree.clear()
-
 	if database == null:
 		return
 
 	var fs := EditorInterface.get_resource_filesystem()
-	var root_dir := fs.get_filesystem()
-	var root_item := _resource_tree.create_item()
-	root_item.set_text(0, "res://")
-	root_item.set_metadata(0, "res://")
-	root_item.set_icon(0, _get_editor_icon(&"Folder"))
-	_scan_dir_for_imported_assets(root_dir, root_item)
-	_queue_resource_tree_visibility_update()
+	var fs_root := fs.get_filesystem()
+
+	var tree_root := _resource_tree.get_root()
+	if tree_root == null:
+		tree_root = _resource_tree.create_item()
+		tree_root.set_text(0, "res://")
+		tree_root.set_metadata(0, "res://")
+		tree_root.set_icon(0, _get_editor_icon(&"Folder"))
+
+	_sync_resource_dir_with_item(fs_root, tree_root)
+	_update_resource_tree_visibilities()
 
 
-func _scan_dir_for_imported_assets(dir: EditorFileSystemDirectory, dir_item: TreeItem) -> bool:
-	if not _should_scan_resource_directory(dir.get_path()):
-		return false
-
-	var found_files := false
-
-	var subdir_item: TreeItem = null
-	for i in dir.get_subdir_count():
-		var subdir := dir.get_subdir(i)
+func _sync_resource_dir_with_item(dir: EditorFileSystemDirectory, dir_item: TreeItem) -> void:
+	var subdir_count := dir.get_subdir_count()
+	for index in subdir_count:
+		var subdir := dir.get_subdir(index)
+		var subdir_path := subdir.get_path()
+		if not _should_scan_resource_directory(dir.get_path()):
+			continue
+		var subdir_item := _find_resource_dir_child_item(dir_item, subdir_path, index)
 		if subdir_item == null:
-			subdir_item = dir_item.create_child()
-			subdir_item.collapsed = true
-		if _scan_dir_for_imported_assets(subdir, subdir_item):
-			found_files = true
-			subdir_item.set_text(0, subdir.get_name())
-			subdir_item.set_metadata(0, subdir.get_path())
-			subdir_item.set_icon(0, _get_editor_icon(&"Folder"))
-			subdir_item = null
+			subdir_item = _create_resource_dir_item(dir_item, index, subdir.get_name(), subdir_path)
+		_sync_resource_dir_with_item(subdir, subdir_item)
 
-	if subdir_item != null:
-		dir_item.remove_child(subdir_item)
+	var running_index := subdir_count
+	for index in dir.get_file_count():
+		var file_path := dir.get_file_path(index)
+		if not _is_resource_tracked(file_path) or not _is_resource_imported(file_path):
+			continue
+		var file_item := _find_resource_dir_child_item(dir_item, file_path, running_index)
+		if file_item == null:
+			var file_type := dir.get_file_type(index)
+			file_item = _create_resource_file_item(dir_item, running_index, file_path, file_type)
+		running_index += 1
 
-	for i in dir.get_file_count():
-		var file := dir.get_file_path(i)
-		if _is_resource_tracked(file) and _is_resource_imported(file):
-			found_files = true
-			var file_item := dir_item.create_child()
-			file_item.set_text(0, file.get_file())
-			file_item.set_metadata(0, file)
-			var file_type := dir.get_file_type(i)
-			file_item.set_icon(0, _get_file_icon(file_type))
+	if dir_item.get_child_count() > running_index:
+		for item in dir_item.get_children().slice(running_index):
+			dir_item.remove_child(item)
 
-	return found_files
+
+func _find_resource_dir_child_item(dir_item: TreeItem, child_path: String, index: int) -> TreeItem:
+	if index < dir_item.get_child_count():
+		var item := dir_item.get_child(index)
+		if item.get_metadata(0) == child_path:
+			return item
+
+	for item in dir_item.get_children():
+		if item.get_metadata(0) == child_path:
+			item.move_before(dir_item.get_child(index))
+			return item
+
+	return null
+
+
+func _create_resource_dir_item(parent_item: TreeItem, index: int, name_: String, path: String) -> TreeItem:
+	var item := parent_item.create_child(index)
+	item.set_icon(0, _get_file_icon(&"Folder"))
+	item.set_text(0, name_)
+	item.set_metadata(0, path)
+	return item
+
+
+func _create_resource_file_item(parent_item: TreeItem, index: int, path: String, file_type: StringName) -> TreeItem:
+	var item := parent_item.create_child(index)
+	item.set_icon(0, _get_file_icon(file_type))
+	item.set_text(0, path.get_file())
+	item.set_metadata(0, path)
+	return item
 
 
 func _should_scan_resource_directory(path: String) -> bool:
@@ -689,6 +710,7 @@ func _queue_resource_tree_visibility_update() -> void:
 
 
 func _update_resource_tree_visibilities() -> void:
+	_resource_tree_visibility_update_queued = false
 	var root := _resource_tree.get_root()
 	if root != null:
 		_update_resource_subtree_visibilities(root)
@@ -696,8 +718,6 @@ func _update_resource_tree_visibilities() -> void:
 
 
 func _update_resource_subtree_visibilities(item: TreeItem) -> bool:
-	_resource_tree_visibility_update_queued = false
-
 	if item == null:
 		return false
 
