@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cscc16xrdvyu7"]
+
+[ext_resource type="Script" uid="uid://70xhbqgw3gv8" path="res://addons/license_tracker/ui/untracked_license_file_list.gd" id="1_1uui8"]
+
+[node name="untracked_license_file_list" type="ItemList"]
+script = ExtResource("1_1uui8")

@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dh0dgc2e7d043"]
+[gd_scene load_steps=3 format=3 uid="uid://dh0dgc2e7d043"]
 
 [ext_resource type="Script" uid="uid://cvjw233rwbeit" path="res://addons/license_tracker/ui/licenses_panel.gd" id="1_1w1gw"]
+[ext_resource type="PackedScene" uid="uid://cscc16xrdvyu7" path="res://addons/license_tracker/ui/untracked_license_file_list.tscn" id="2_8x6bw"]
 
 [node name="licenses_panel" type="Control"]
 layout_mode = 3
@@ -184,7 +185,7 @@ tooltip_text = "Create a new license from the selected file"
 text = "New license from file"
 flat = true
 
-[node name="untracked_files_list" type="ItemList" parent="vsplit/bottom_pane"]
+[node name="untracked_files_list" parent="vsplit/bottom_pane" instance=ExtResource("2_8x6bw")]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
