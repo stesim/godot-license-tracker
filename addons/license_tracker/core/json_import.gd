@@ -9,27 +9,29 @@ const LicensedAssetDatabase := preload("../core/licensed_asset_database.gd")
 
 
 const OPTIONAL_ASSET_PROPERTIES: Dictionary[String, StringName] = {
-	"name" = &"asset_name",
-	"author" = &"author",
-	"description" = &"description",
-	"source" = &"source",
-	"retrieved" = &"retrieved",
-	"custom_attribution" = &"custom_attribution",
-	"is_modified" = &"is_modified",
-	"files" = &"files",
+	"name": &"asset_name",
+	"author": &"author",
+	"copyright": &"copyright",
+	"license_file": &"license_file",
+	"description": &"description",
+	"source": &"source",
+	"retrieved": &"retrieved",
+	"custom_attribution": &"custom_attribution",
+	"is_modified": &"is_modified",
+	"files": &"files",
 }
 
 const OPTIONAL_LICENSE_PROPERTIES: Dictionary[String, StringName] = {
-	"read_only" = &"read_only",
-	"short_name" = &"short_name",
-	"full_name" = &"full_name",
-	"url" = &"url",
-	"file" = &"file",
-	"text" = &"text",
-	"requires_attribution" = &"requires_attribution",
-	"allows_modifications" = &"allows_modifications",
-	"allows_commercial_use" = &"allows_commercial_use",
-	"allows_redistribution" = &"allows_redistribution",
+	"read_only": &"read_only",
+	"short_name": &"short_name",
+	"full_name": &"full_name",
+	"url": &"url",
+	"file": &"file",
+	"text": &"text",
+	"requires_attribution": &"requires_attribution",
+	"allows_modifications": &"allows_modifications",
+	"allows_commercial_use": &"allows_commercial_use",
+	"allows_redistribution": &"allows_redistribution",
 }
 
 
